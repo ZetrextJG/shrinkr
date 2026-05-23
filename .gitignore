@@ -12,3 +12,6 @@ wheels/
 # Object files
 *.o
 *.so
+
+# UV lock
+uv.lock
