@@ -3,10 +3,9 @@
 #
 
 import numpy as np
-from numpy import matlib as ml
 
 
-def ledoit_wolf_analytical_shrinkage(lam: np.ndarray, n: int, eps: float = 1e-8) -> np.ndarray:
+def lw_analytical_shrinkage(lam: np.ndarray, n: int, eps: float = 1e-8) -> np.ndarray:
     """Shrink covarince matrix using non-linear shrinkage as described in
     Ledoit and Wolf 2018 http://www.econ.uzh.ch/static/wp/econwp264.pdf .
     The code uses an analytic formula which was previously not available
@@ -28,7 +27,8 @@ def ledoit_wolf_analytical_shrinkage(lam: np.ndarray, n: int, eps: float = 1e-8)
     lam = lam[np.maximum(0, p - n):]
     if any(lam / sum(lam) < eps):
         raise ValueError("Matrix is singular")
-    L = ml.repmat(lam.T, np.minimum(p, n), 1).T
+
+    L = np.tile(lam[:, None], (1, np.minimum(p, n)))
     h = np.power(n, -1 / 3.)
     # % Equation(4.9)
     H = h * L.T
