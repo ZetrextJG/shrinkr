@@ -1,24 +1,29 @@
+# The adapted code from
+# https://github.com/matzhaugen/analytic_shrinkage
+#
+
 import numpy as np
 from numpy import matlib as ml
 
 
-def ledoit_wolf_analytical_shrinkage(lam, n, eps=1e-8):
+def ledoit_wolf_analytical_shrinkage(lam: np.ndarray, n: int, eps: float = 1e-8) -> np.ndarray:
     """Shrink covarince matrix using non-linear shrinkage as described in
     Ledoit and Wolf 2018 http://www.econ.uzh.ch/static/wp/econwp264.pdf .
     The code uses an analytic formula which was previously not available
-    and is thus much faster because there is no optimization necessary. The code can
-    also handle the high-dimensional setting with p>n .
+    and is thus much faster because there is no optimization necessary.
+    The code can also handle the high-dimensional setting with p>n.
 
     Args:
-        lam - empirical eigenvalues
-        n -  effectivate sample size
+        lam: empirical eigenvalues
+        n: effectivate sample size
+        eps: Epsilon value to use for eigenvalue filtering
 
     Returns:
-        - LW-adjusted eigenvalues
-        
+        LW-adjusted eigenvalues
     """
+    assert len(lam.shape) == 1
     p = lam.shape[0]
-    
+
     # compute analytical nonlinear shrinkage kernel formula
     lam = lam[np.maximum(0, p - n):]
     if any(lam / sum(lam) < eps):
