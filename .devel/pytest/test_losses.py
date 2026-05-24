@@ -6,12 +6,13 @@ def test_fr_loss():
     np.random.seed(42)
     mat = np.random.rand(16)
     mat = mat.reshape(4, 4)
+    # Distance between itself should be zero.
     loss = loss_fr(mat, mat)
     assert np.allclose(loss, 0.0)
 
     loss = loss_fr(
-        np.eye(5),
-        np.zeros((5, 5))
+        np.eye(5), # Identity matrix
+        np.zeros((5, 5)) # Zero matrix
     )
     assert np.allclose(loss, 1.0)
 

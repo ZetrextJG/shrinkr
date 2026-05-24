@@ -82,5 +82,5 @@ def loss_fr(matrixA: np.ndarray, matrixB: np.ndarray) -> float:
     # Logic
     n, p = matrixB.shape
     delta = matrixA - matrixB
-    return np.trace(delta ** 2) / p
+    return np.sum(delta.reshape(-1) ** 2) / p
 
