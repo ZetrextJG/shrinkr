@@ -2,8 +2,7 @@ import numpy as np
 
 from shrinkr.functional import prial
 from shrinkr.monte_carlo import get_large_sample_cov, get_small_sample_cov
-from shrinkr.reference.lw_analytical import lw_analytical_shrinkage
-from shrinkr.reference.lw_linear import lw_linear_shrinkage
+from shrinkr.reference import lw_analytical_shrinkage, lw_linear_shrinkage, oas_shrinkage
 
 
 def test_lw_linear_example():
@@ -23,3 +22,9 @@ def test_lw_analytical():
 
     # Expect (at least) small improvement
     assert prial(sc, sc_hat, rc) > 0.1
+
+
+def test_oas():
+    X, _, real_cov = get_small_sample_cov()
+    sc_hat, shrinkage = oas_shrinkage(X)
+    assert 0 <= shrinkage <= 1
