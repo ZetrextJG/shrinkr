@@ -1,10 +1,10 @@
 import numpy as np
 
-from shrinkr.monte_carlo import get_small_sample_cov, get_large_sample_cov
-
 from shrinkr.functional import prial
+from shrinkr.monte_carlo import get_large_sample_cov, get_small_sample_cov
 from shrinkr.reference.lw_analytical import lw_analytical_shrinkage
 from shrinkr.reference.lw_linear import lw_linear_shrinkage
+
 
 def test_lw_linear_example():
     X, _, real_cov = get_small_sample_cov()
@@ -23,6 +23,3 @@ def test_lw_analytical():
 
     # Expect (at least) small improvement
     assert prial(sc, sc_hat, rc) > 0.1
-
-
-

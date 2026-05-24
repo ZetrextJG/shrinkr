@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def prial(sample_cov: np.ndarray, sigma_hat: np.ndarray, sigma: np.ndarray) -> float:
     """Percentage Relative Improvement in Average Loss
 
@@ -58,7 +59,7 @@ def mv_opt_cov(sample_cov: np.ndarray, sigma: np.ndarray) -> np.ndarray:
 
 
 def loss_mv(sigma_hat: np.ndarray, sigma: np.ndarray) -> float:
-    """The Minimal Variance (MV) loss 
+    """The Minimal Variance (MV) loss
 
     Args:
         sample_hat: Estimate of the true covariance
@@ -81,7 +82,7 @@ def loss_mv(sigma_hat: np.ndarray, sigma: np.ndarray) -> float:
     omega_hat = np.linalg.inv(sigma_hat)
     num = np.trace(np.dot(np.dot(omega_hat, sigma), omega_hat)) / p
     denom = (np.trace(omega_hat) / p) ** 2
-    alpha = (np.trace(np.linalg.inv(sigma)) / p)
+    alpha = np.trace(np.linalg.inv(sigma)) / p
     return num / denom - alpha
 
 
@@ -100,4 +101,3 @@ def loss_fr(matrixA: np.ndarray, matrixB: np.ndarray) -> float:
     n, p = matrixB.shape
     delta = matrixA - matrixB
     return np.sum(delta.reshape(-1) ** 2) / p
-

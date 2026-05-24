@@ -20,10 +20,42 @@ build-backend = "setuptools.build_meta"
 [dependency-groups]
 dev = [
     "build>=1.5.0",
+    "isort>=8.0.1",
+    "pre-commit>=4.6.0",
     "pytest>=9.0.3",
+    "ruff>=0.15.14",
     "setuptools>=82.0.1",
+    "ty>=0.0.39",
     "wheel>=0.47.0",
 ]
 
 [tool.pytest.ini_options]
 testpaths = [".devel/pytest"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "dist",
+    "build",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle
+    "F",   # pyflakes
+    "I",   # import sorting
+    "B",   # bugbear
+    "UP",  # pyupgrade
+]
+
+ignore = [
+    "E501",  # handled by formatter
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

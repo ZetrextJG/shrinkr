@@ -4,7 +4,10 @@
 
 import numpy as np
 
-def lw_linear_shrinkage(X: np.ndarray, assume_centered: bool = False, block_size: int = 1000) -> float:
+
+def lw_linear_shrinkage(
+    X: np.ndarray, assume_centered: bool = False, block_size: int = 1000
+) -> float:
     """Estimate the (linear) shrunk Ledoit-Wolf covariance matrix.
 
     Args:
@@ -38,9 +41,7 @@ def lw_linear_shrinkage(X: np.ndarray, assume_centered: bool = False, block_size
         X = np.reshape(X, (1, -1))
 
     if X.shape[0] == 1:
-        print(
-            "Only one sample available. You may want to reshape your data array"
-        )
+        print("Only one sample available. You may want to reshape your data array")
     n_samples, n_features = X.shape
 
     # optionally center data
@@ -71,13 +72,9 @@ def lw_linear_shrinkage(X: np.ndarray, assume_centered: bool = False, block_size
         cols = slice(block_size * j, block_size * (j + 1))
         beta_ += np.sum(np.dot(X2.T[block_size * n_splits :], X2[:, cols]))
         delta_ += np.sum(np.dot(X.T[block_size * n_splits :], X[:, cols]) ** 2)
-    delta_ += np.sum(
-        np.dot(X.T[block_size * n_splits :], X[:, block_size * n_splits :]) ** 2
-    )
+    delta_ += np.sum(np.dot(X.T[block_size * n_splits :], X[:, block_size * n_splits :]) ** 2)
     delta_ /= n_samples**2
-    beta_ += np.sum(
-        np.dot(X2.T[block_size * n_splits :], X2[:, block_size * n_splits :])
-    )
+    beta_ += np.sum(np.dot(X2.T[block_size * n_splits :], X2[:, block_size * n_splits :]))
     # use delta_ to compute beta
     beta = 1.0 / (n_features * n_samples) * (beta_ / n_samples - delta_)
     # delta is the sum of the squared coefficients of (<X.T,X> - mu*Id) / p
@@ -90,5 +87,3 @@ def lw_linear_shrinkage(X: np.ndarray, assume_centered: bool = False, block_size
     # finally get shrinkage
     shrinkage = 0 if beta == 0 else beta / delta
     return shrinkage
-
-

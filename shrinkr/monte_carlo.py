@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def get_small_sample_cov(n: int = 50, seed: int = 0) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Generates a small sample from multivariance normal distribtuion
 
@@ -9,16 +10,14 @@ def get_small_sample_cov(n: int = 50, seed: int = 0) -> tuple[np.ndarray, np.nda
 
     Returns (in a triple):
         X: (n, 2) shaped matrix
-        sample_cov: (2, 2) sample covariance matrix 
+        sample_cov: (2, 2) sample covariance matrix
         real_cov: (2, 2) population (real) covariance matrix
 
     """
 
-    real_cov: np.ndarray = np.array([[.4, .2], [.2, .8]])
+    real_cov: np.ndarray = np.array([[0.4, 0.2], [0.2, 0.8]])
     rng = np.random.RandomState(seed)
-    X = rng.multivariate_normal(
-        mean=[0, 0], cov=real_cov, size=n
-    )
+    X = rng.multivariate_normal(mean=[0, 0], cov=real_cov, size=n)
     sample_cov = np.cov(X, rowvar=False)
     return X, sample_cov, real_cov
 
@@ -33,11 +32,7 @@ def get_large_sample_cov(p: int = 20, n: int = 200, seed: int = 0):
     real_cov /= np.trace(real_cov)
 
     # Empirical cov
-    X = rng.multivariate_normal(
-        mean=np.zeros(p),
-        cov=real_cov,
-        size=n
-    )
+    X = rng.multivariate_normal(mean=np.zeros(p), cov=real_cov, size=n)
     sample_cov = np.cov(X, rowvar=False)
 
     return X, sample_cov, real_cov
