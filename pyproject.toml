@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [build-system]
-requires = ["setuptools>=69", "wheel"]
+requires = ["setuptools>=69", "wheel", "numpy"]
 build-backend = "setuptools.build_meta"
 
 [dependency-groups]

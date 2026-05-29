@@ -2,6 +2,13 @@
 #include <Python.h>
 #include "c_shrinkr.h"
 
+// PyArray_* functions:
+#include <numpy/arrayobject.h>
+#include <numpy/ndarrayobject.h>
+#include <numpy/ndarraytypes.h>
+#include <numpy/arrayscalars.h>
+#include <numpy/ufuncobject.h>
+
 static PyObject* py_add(PyObject* self, PyObject* args) {
     int a, b;
 

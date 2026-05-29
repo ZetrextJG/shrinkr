@@ -1,3 +1,4 @@
+import numpy
 from setuptools import Extension, setup
 
 ext_modules = [
@@ -7,7 +8,7 @@ ext_modules = [
             "shrinkr/bindings.c",
             "src/c_shrinkr.c",
         ],
-        include_dirs=["src"],
+        include_dirs=["src", numpy.get_include()],
     )
 ]
 
