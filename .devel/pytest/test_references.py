@@ -60,7 +60,7 @@ def test_deal():
     fm1 = loss_fm(v1, rc, mean_diff)
 
     # Lower better - Fisher Margin
-    assert fm1 <= fm0
+    assert 0 <= fm1 <= fm0
 
 
 def test_oas():
