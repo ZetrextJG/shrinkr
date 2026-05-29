@@ -31,6 +31,8 @@ def get_large_sample_cov(p: int = 20, n: int = 200, seed: int = 0):
     real_cov = A @ A.T
     real_cov /= np.trace(real_cov)
 
+    real_cov += 1e-4
+
     # Empirical cov
     X = rng.multivariate_normal(mean=np.zeros(p), cov=real_cov, size=n)
     sample_cov = np.cov(X, rowvar=False)

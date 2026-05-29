@@ -58,6 +58,29 @@ def mv_opt_cov(sample_cov: np.ndarray, sigma: np.ndarray) -> np.ndarray:
     return np.dot(ud, u.T)
 
 
+def loss_fm(v: np.ndarray, sigma: np.ndarray, mu: np.ndarray) -> float:
+    """The Fisher Margin loss
+
+    Args:
+        v: An LDA vector computed from data
+        sigma: True Covariance
+        mu: True difference in means vector
+
+    Returns:
+        The value of the FM loss
+    """
+    if len(v.shape) != 1:
+        raise ValueError("v has to be a 1D vector")
+    if len(mu.shape) != 1:
+        raise ValueError("v has to be a 1D vector")
+    if len(sigma.shape) != 2:
+        raise ValueError("sigma has to be a matrix")
+
+    A = np.dot(v, mu)
+    B = v.T @ (sigma @ mu)
+    return (A**2) / B
+
+
 def loss_mv(sigma_hat: np.ndarray, sigma: np.ndarray) -> float:
     """The Minimal Variance (MV) loss
 

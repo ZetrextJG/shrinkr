@@ -1,8 +1,14 @@
 import numpy as np
 
-from shrinkr.functional import prial
+from shrinkr.functional import loss_fm, prial
 from shrinkr.monte_carlo import get_large_sample_cov, get_small_sample_cov
-from shrinkr.reference import lw_analytical_shrinkage, lw_linear_shrinkage, oas_shrinkage
+from shrinkr.reference import (
+    lw_analytical_shrinkage,
+    lw_analytical_shrinkage_unstable,
+    lw_linear_shrinkage,
+    oas_shrinkage,
+)
+from shrinkr.reference.deal import deal_shrinkage
 
 
 def test_lw_linear_example():
@@ -14,14 +20,47 @@ def test_lw_linear_example():
 def test_lw_analytical():
     p = 50
     n = 60
-    _, sc, rc = get_large_sample_cov(p=p, n=n)
+    _, sc, rc = get_large_sample_cov(p=p, n=n, seed=42)
 
     lam, U = np.linalg.eigh(sc)
-    lam = lw_analytical_shrinkage(lam, n)
-    sc_hat = U @ np.diag(lam) @ (U.T)
+    lam1 = lw_analytical_shrinkage(lam, n)
 
-    # Expect (at least) small improvement
-    assert prial(sc, sc_hat, rc) > 0.1
+    assert lam1.shape == lam.shape
+
+    sc_hat1 = U @ np.diag(lam1) @ (U.T)
+    prial1 = prial(sc, sc_hat1, rc)
+
+    lam2 = lw_analytical_shrinkage_unstable(lam, n)
+    sc_hat2 = U @ np.diag(lam2) @ (U.T)
+    prial2 = prial(sc, sc_hat2, rc)
+
+    # Expect (at least) some improvement
+    # and more stable then original
+    assert prial1 > 0.1
+    assert prial1 >= prial2 - 1e-8
+
+
+def test_deal():
+    p = 50
+    n = 60
+    _, sc, rc = get_large_sample_cov(p=p, n=n, seed=42)
+
+    lam, U = np.linalg.eigh(sc)
+    mean_diff = np.ones(p)
+    mean_diff /= np.linalg.norm(mean_diff, ord=2)
+    z_vec = U.T @ mean_diff
+
+    v0 = np.linalg.solve(sc, mean_diff)
+    fm0 = loss_fm(v0, rc, mean_diff)
+
+    lam1 = deal_shrinkage(lam, z_vec, n)
+    assert lam1.shape == lam.shape
+    v1 = U @ (z_vec / (lam1 + 1e-12))
+
+    fm1 = loss_fm(v1, rc, mean_diff)
+
+    # Lower better - Fisher Margin
+    assert fm1 <= fm0
 
 
 def test_oas():
