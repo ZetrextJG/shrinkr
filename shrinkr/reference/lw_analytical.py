@@ -5,7 +5,7 @@
 import numpy as np
 
 
-def lw_analytical_shrinkage_unstable(lam: np.ndarray, n: int, eps: float = 1e-8):
+def ref_lw_analytical_unstable(lam: np.ndarray, n: int, eps: float = 1e-8):
     """Shrink covarince matrix using non-linear shrinkage as described in
     Ledoit and Wolf 2018 http://www.econ.uzh.ch/static/wp/econwp264.pdf .
     The code uses an analytic formula which was previously not available
@@ -74,7 +74,7 @@ def lw_analytical_shrinkage_unstable(lam: np.ndarray, n: int, eps: float = 1e-8)
     return dtilde
 
 
-def lw_analytical_shrinkage(lam: np.ndarray, n: int, eps: float = 1e-8) -> np.ndarray:
+def ref_lw_analytical(lam: np.ndarray, n: int, eps: float = 1e-8) -> np.ndarray:
     """Shrink covarince matrix using non-linear shrinkage as described in
     Ledoit and Wolf 2018 http://www.econ.uzh.ch/static/wp/econwp264.pdf .
     The code uses an analytic formula which was previously not available

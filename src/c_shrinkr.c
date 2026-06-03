@@ -16,7 +16,7 @@ double relu(double x) {
   return x > 0.0 ? x : 0.0;
 }
 
-void Clw_analytical_shrinkage(
+void C_LWAnalytical(
     const double * const lam, // Input data
     double * const lam_star, // Output data
     size_t n, // Number of sample used
@@ -111,8 +111,4 @@ void Clw_analytical_shrinkage(
   }
 
   return ;
-}
-
-int add(int a, int b) {
-    return a + b;
 }

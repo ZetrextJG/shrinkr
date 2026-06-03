@@ -3,10 +3,10 @@ import numpy as np
 from shrinkr.functional import loss_fm, prial
 from shrinkr.monte_carlo import get_large_sample_cov, get_small_sample_cov
 from shrinkr.reference import (
-    lw_analytical_shrinkage,
-    lw_analytical_shrinkage_unstable,
     lw_linear_shrinkage,
     oas_shrinkage,
+    ref_lw_analytical,
+    ref_lw_analytical_unstable,
 )
 from shrinkr.reference.deal import deal_shrinkage
 
@@ -23,14 +23,14 @@ def test_lw_analytical():
     _, sc, rc = get_large_sample_cov(p=p, n=n, seed=42)
 
     lam, U = np.linalg.eigh(sc)
-    lam1 = lw_analytical_shrinkage(lam, n)
+    lam1 = ref_lw_analytical(lam, n)
 
     assert lam1.shape == lam.shape
 
     sc_hat1 = U @ np.diag(lam1) @ (U.T)
     prial1 = prial(sc, sc_hat1, rc)
 
-    lam2 = lw_analytical_shrinkage_unstable(lam, n)
+    lam2 = ref_lw_analytical_unstable(lam, n)
     sc_hat2 = U @ np.diag(lam2) @ (U.T)
     prial2 = prial(sc, sc_hat2, rc)
 

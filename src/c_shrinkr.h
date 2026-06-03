@@ -4,14 +4,12 @@
 #include "stddef.h"
 
 
-void Clw_analytical_shrinkage(
+void C_LWAnalytical(
     const double * const lam, // Input data
     double * const lam_star, // Output data
     size_t n, // Number of sample used
     size_t p, // Dimensions of both x and y
     double eps // Epsilon value
 );
-
-int add(int a, int b);
 
 #endif

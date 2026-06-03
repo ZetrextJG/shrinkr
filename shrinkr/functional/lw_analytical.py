@@ -1,10 +1,10 @@
 import numpy as np
 from numpy.typing import NDArray
 
-from shrinkr._native import py_lw_analytical_shrinkage
+from shrinkr._native import py_lw_analytical
 
 
-def lw_analytical_shrinkage(
+def lw_analytical(
     eigenvalues: np.ndarray, n: int, p: int | None = None, eps: float = 1e-8
 ) -> np.ndarray:
     # Checks
@@ -23,4 +23,4 @@ def lw_analytical_shrinkage(
     if num_not_effective > 0:
         n = n - num_not_effective  # Correct the number of effective samples
 
-    return py_lw_analytical_shrinkage(eigenvalues, n, p, eps)
+    return py_lw_analytical(eigenvalues, n, p, eps)

@@ -2,7 +2,7 @@ from typing import Literal
 
 import numpy as np
 
-from .lw_analytical import lw_analytical_shrinkage
+from .lw_analytical import ref_lw_analytical
 
 
 def deterministic_equivalent_objective(
@@ -175,7 +175,7 @@ def deal_shrinkage(
 
     # Compute (non-)linear shrinkages
     orig_evals = evals.copy()
-    lw_nl_evals = lw_analytical_shrinkage(evals, n_eff, eps**2)
+    lw_nl_evals = ref_lw_analytical(evals, n_eff, eps**2)
 
     # Select which eigenvalues to use for the base
     if base_shrinkage == "lw_analytical":

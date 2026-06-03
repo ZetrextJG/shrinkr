@@ -2,10 +2,10 @@ import time
 
 import numpy as np
 
-from shrinkr.functional import lw_analytical_shrinkage
+from shrinkr.functional import lw_analytical
 from shrinkr.monte_carlo import get_large_sample_cov
 from shrinkr.reference import (
-    lw_analytical_shrinkage as ref_lw_analytical_shrinkage,
+    ref_lw_analytical as ref_lw_analytical_shrinkage,
 )
 
 
@@ -42,7 +42,7 @@ def benchmark_shrinkage_implementations(iterations: int = 100) -> None:
 
         # Optional: Warm-up runs to compile JIT/C-extensions if applicable
         ref_lw_analytical_shrinkage(lam, n)
-        lw_analytical_shrinkage(lam, n)
+        lw_analytical(lam, n)
 
         # 2. Benchmark Reference Implementation
         start_ref = time.perf_counter()
@@ -53,7 +53,7 @@ def benchmark_shrinkage_implementations(iterations: int = 100) -> None:
         # 3. Benchmark New/Optimized Implementation
         start_new = time.perf_counter()
         for _ in range(iterations):
-            lw_analytical_shrinkage(lam, n)
+            lw_analytical(lam, n)
         new_time = time.perf_counter() - start_new
 
         # 4. Calculate Speedup

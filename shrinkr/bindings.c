@@ -11,7 +11,7 @@
 #include <numpy/ufuncobject.h>
 
 
-static PyObject* py_lw_analytical_shrinkage(PyObject* self, PyObject* args) {
+static PyObject* py_lw_analytical(PyObject* self, PyObject* args) {
   if (PyTuple_Size(args) != 4)
     return PyErr_Format(PyExc_RuntimeError, "expected 4 arguments");
 
@@ -77,14 +77,14 @@ static PyObject* py_lw_analytical_shrinkage(PyObject* self, PyObject* args) {
   double * lams_star = PyArray_DATA(lams_star_pyarr);
 
   // Execute C code
-  Clw_analytical_shrinkage(lams, lams_star, n, p, eps);
+  C_LWAnalytical(lams, lams_star, n, p, eps);
 
   // Return object
   return lams_star_obj;
 }
 
 static PyMethodDef Methods[] = {
-    {"py_lw_analytical_shrinkage", py_lw_analytical_shrinkage, METH_VARARGS, "Performs LW analytical shrinkage"},
+    {"py_lw_analytical", py_lw_analytical, METH_VARARGS, "Performs LW analytical shrinkage"},
     {NULL, NULL, 0, NULL}
 };
 
