@@ -5,9 +5,9 @@
 import numpy as np
 
 
-def lw_linear_shrinkage(
+def ref_lw_linear(
     X: np.ndarray, assume_centered: bool = False, block_size: int = 1000
-) -> float:
+) -> tuple[np.ndarray, float]:
     """Estimate the (linear) shrunk Ledoit-Wolf covariance matrix.
 
     Args:
@@ -36,7 +36,7 @@ def lw_linear_shrinkage(
     """
     # for only one feature, the result is the same whatever the shrinkage
     if len(X.shape) == 2 and X.shape[1] == 1:
-        return 0.0
+        return np.var(X.reshape(-1)).reshape(1, 1), 0.0
     if X.ndim == 1:
         X = np.reshape(X, (1, -1))
 
@@ -47,6 +47,8 @@ def lw_linear_shrinkage(
     # optionally center data
     if not assume_centered:
         X = X - X.mean(0)
+
+    sample_cov = np.cov(X, rowvar=False)
 
     # A non-blocked version of the computation is present in the tests
     # in tests/test_covariance.py
@@ -86,4 +88,7 @@ def lw_linear_shrinkage(
     beta = min(beta, delta)
     # finally get shrinkage
     shrinkage = 0 if beta == 0 else beta / delta
-    return shrinkage
+
+    sample_cov_star = ((1 - shrinkage) * sample_cov) + (shrinkage * mu * np.eye(n_features))
+
+    return sample_cov_star, shrinkage

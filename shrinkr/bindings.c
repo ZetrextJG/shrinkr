@@ -10,60 +10,60 @@
 #include <numpy/arrayscalars.h>
 #include <numpy/ufuncobject.h>
 
+#define PARSE_POSITIVE_SIZE_T(py_value, c_value, name)       \
+    do {                                                     \
+        if ((py_value) <= 0) {                               \
+            PyErr_Format(PyExc_TypeError,                    \
+                         "%s must be a positive integer",    \
+                         (name));                            \
+            return NULL;                                     \
+        }                                                    \
+        (c_value) = (size_t)(py_value);                      \
+    } while (0)
+
+
+// Helper functions
+static double * get_numpy_data_safe(PyObject* obj, const char * name) {
+  if (!PyArray_Check(obj)) {
+    PyErr_Format(PyExc_RuntimeError, "%s to be a expected a numpy array", name);
+    return NULL;
+  }
+  const PyArrayObject* pyarr = (const PyArrayObject*) obj;
+  if (PyArray_TYPE(pyarr) != NPY_DOUBLE) {
+    PyErr_Format(PyExc_RuntimeError, "%s expected to be a numpy double-typed array", name);
+    return NULL;
+  }
+  if (!PyArray_IS_C_CONTIGUOUS(pyarr)) {
+    PyErr_Format(PyExc_RuntimeError, "%s expected to be a contiguous array", name); 
+    return NULL;
+  }
+  double* lams = PyArray_DATA(pyarr);
+  return lams;
+}
+
+// Bindings
 
 static PyObject* py_lw_analytical(PyObject* self, PyObject* args) {
-  if (PyTuple_Size(args) != 4)
-    return PyErr_Format(PyExc_RuntimeError, "expected 4 arguments");
+  PyObject *lams_obj;
+  Py_ssize_t py_n, py_p;
+  size_t n, p;
+  double eps;
 
-  // Unpack args
-  PyObject* lams_obj = PyTuple_GetItem(args, 0);
-  if (!lams_obj) return NULL;
-  PyObject* n_obj = PyTuple_GetItem(args, 1);
-  if (!n_obj) return NULL;
-  PyObject* p_obj = PyTuple_GetItem(args, 2);
-  if (!p_obj) return NULL;
-  PyObject* eps_obj = PyTuple_GetItem(args, 3);
-  if (!eps_obj) return NULL;
+  // Extract args
+  if (!PyArg_ParseTuple(
+    args, "Onnd",
+    &lams_obj, &py_n, &py_p, &eps
+  )) return NULL;
 
   // Checks for lams
-  if (!PyArray_Check(lams_obj)) {
-    PyErr_SetString(PyExc_RuntimeError, "expected a numpy array");
-    return NULL;
-  }
-  const PyArrayObject* lams_pyarr = (const PyArrayObject*) lams_obj;
-  if (PyArray_TYPE(lams_pyarr) != NPY_DOUBLE) {
-    PyErr_SetString(PyExc_RuntimeError, "expected a numpy double-typed array");
-    return NULL;
-  }
-  if (!PyArray_IS_C_CONTIGUOUS(lams_pyarr)) {
-    PyErr_Format(PyExc_RuntimeError, "expected a contiguous array"); 
-    return NULL;
-  }
-  const double* const lams = PyArray_DATA(lams_pyarr);
+  const double* const lams = get_numpy_data_safe(lams_obj, "lams");
+  if (!lams) return NULL;
 
-  // Checks for n
-  if (!PyNumber_Check(n_obj)) {
-    PyErr_SetString(PyExc_TypeError, "n must be positive integer");
-    return NULL;
-  }
-  size_t n = PyNumber_AsSsize_t(n_obj, NULL);
-  if (n == -1 && PyErr_Occurred())  return NULL;
-
-  // Checks for p
-  if (!PyNumber_Check(p_obj)) { 
-    PyErr_SetString(PyExc_TypeError, "p must be positive integer");
-    return NULL;
-  }
-  size_t p = PyNumber_AsSsize_t(p_obj, NULL);
-  if (p == -1 && PyErr_Occurred())  return NULL;
+  // Checks for shape
+  PARSE_POSITIVE_SIZE_T(py_n, n, "n");
+  PARSE_POSITIVE_SIZE_T(py_p, p, "p");
 
   // Checks for eps
-  if (!PyFloat_Check(eps_obj)) {
-    PyErr_SetString(PyExc_TypeError, "eps must be a positive float");
-    return NULL;
-  }
-  double eps = PyFloat_AsDouble(eps_obj);
-  if (PyErr_Occurred()) return NULL;
   if (eps <= 0) {
       PyErr_SetString(PyExc_ValueError, "eps must be a positive float");
       return NULL;
@@ -84,44 +84,23 @@ static PyObject* py_lw_analytical(PyObject* self, PyObject* args) {
 }
 
 static PyObject* py_oas(PyObject* self, PyObject* args) {
-  if (PyTuple_Size(args) != 3)
-    return PyErr_Format(PyExc_RuntimeError, "expected 3 arguments");
+  PyObject *sample_cov_obj;
+  Py_ssize_t py_n, py_p;
+  size_t n, p;
 
-  // Unpack args
-  PyObject* sample_cov_obj = PyTuple_GetItem(args, 0);
-  if (!sample_cov_obj) return NULL;
-  PyObject* n_obj = PyTuple_GetItem(args, 1);
-  if (!n_obj) return NULL;
-  PyObject* p_obj = PyTuple_GetItem(args, 2);
-  if (!p_obj) return NULL;
+  // Extract args
+  if (!PyArg_ParseTuple(
+    args, "Onn",
+    &sample_cov_obj, &py_n, &py_p
+  )) return NULL;
 
   // Checks for sample_cov
-  if (!PyArray_Check(sample_cov_obj)) {
-    PyErr_SetString(PyExc_RuntimeError, "expected a numpy matrix");
-    return NULL;
-  }
-  const PyArrayObject* sample_cov_pyarr = (const PyArrayObject*) sample_cov_obj;
-  if (PyArray_TYPE(sample_cov_pyarr) != NPY_DOUBLE) {
-    PyErr_SetString(PyExc_RuntimeError, "expected a numpy double-typed matrix");
-    return NULL;
-  }
-  const double* const sample_cov = PyArray_DATA(sample_cov_pyarr);
+  const double* const sample_cov = get_numpy_data_safe(sample_cov_obj, "sample_cov");
+  if (!sample_cov) return NULL;
 
-  // Checks for n
-  if (!PyNumber_Check(n_obj)) {
-    PyErr_SetString(PyExc_TypeError, "n must be positive integer");
-    return NULL;
-  }
-  size_t n = PyNumber_AsSsize_t(n_obj, NULL);
-  if (n == -1 && PyErr_Occurred())  return NULL;
-
-  // Checks for p
-  if (!PyNumber_Check(p_obj)) { 
-    PyErr_SetString(PyExc_TypeError, "p must be positive integer");
-    return NULL;
-  }
-  size_t p = PyNumber_AsSsize_t(p_obj, NULL);
-  if (p == -1 && PyErr_Occurred())  return NULL;
+  // Checks for shape
+  PARSE_POSITIVE_SIZE_T(py_n, n, "n");
+  PARSE_POSITIVE_SIZE_T(py_p, p, "p");
 
   // Create output object
   npy_intp dims[2] = {p, p};
@@ -139,6 +118,42 @@ static PyObject* py_oas(PyObject* self, PyObject* args) {
   // Return object
   return sample_cov_star_obj;
 }
+
+
+static PyObject* py_lw_linear(PyObject* self, PyObject* args) {
+  PyObject *data_obj;
+  Py_ssize_t py_n, py_p, py_block_size;
+  size_t n, p, block_size;
+
+  // Extract args
+  if (!PyArg_ParseTuple(
+    args, "Onnn",
+    &data_obj, &py_n, &py_p, &py_block_size
+  )) return NULL;
+
+  // Checks for data
+  const double* const data = get_numpy_data_safe(data_obj, "data");
+  if (!data) return NULL;
+
+  // Checks for positive numbers
+  PARSE_POSITIVE_SIZE_T(py_n, n, "n");
+  PARSE_POSITIVE_SIZE_T(py_p, p, "p");
+  PARSE_POSITIVE_SIZE_T(py_block_size, block_size, "block_size");
+
+  // Create output object
+  npy_intp dims[2] = {p, p};
+  PyObject * const sample_cov_star_obj = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
+  if (!sample_cov_star_obj) return NULL;
+  PyArrayObject* sample_cov_star_pyarr = (PyArrayObject*) sample_cov_star_obj;
+  double * sample_cov_star = PyArray_DATA(sample_cov_star_pyarr);
+
+  // Execute C code
+  C_LWLinear(data, sample_cov_star, n, p, block_size);
+
+  // Return object
+  return sample_cov_star_obj;
+}
+
 
 static PyMethodDef Methods[] = {
     {"py_lw_analytical", py_lw_analytical, METH_VARARGS, "Performs LW Analytical Shrinkage"},

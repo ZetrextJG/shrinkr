@@ -3,9 +3,9 @@ import numpy as np
 from shrinkr.functional import loss_fm, prial
 from shrinkr.monte_carlo import get_large_sample_cov, get_small_sample_cov
 from shrinkr.reference import (
-    lw_linear_shrinkage,
     ref_lw_analytical,
     ref_lw_analytical_unstable,
+    ref_lw_linear,
     ref_oas,
 )
 from shrinkr.reference.deal import deal_shrinkage
@@ -13,7 +13,7 @@ from shrinkr.reference.deal import deal_shrinkage
 
 def test_lw_linear_example():
     X, _, real_cov = get_small_sample_cov()
-    shrinkage_coefficient = lw_linear_shrinkage(X)
+    _, shrinkage_coefficient = ref_lw_linear(X)
     assert np.allclose(shrinkage_coefficient, 0.23025, atol=1e-4)
 
 
