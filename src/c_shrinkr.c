@@ -62,7 +62,7 @@ void C_OAS(
   size_t p2 = SQUARE(p);
 
   // Init the sample_cov_star matrix as sample_cov
-  memcpy(sample_cov_star, sample_cov, p2);
+  memcpy(sample_cov_star, sample_cov, p2 * sizeof(double));
 
   double alpha = traceS2divp2(sample_cov, p);
   double mu = trace(sample_cov, p) / p;
@@ -73,7 +73,7 @@ void C_OAS(
   double shrinkage = denom < DOUBLE_EPS ? 1.0 : clip(num / denom, 0, 1);
 
   // Shrink the cov
-  scalar_multiply(sample_cov_star, SQUARE(p), shrinkage);
+  scalar_multiply(sample_cov_star, SQUARE(p), (1.0 - shrinkage));
 
   // Add on the diagonal
   double add_value = shrinkage * mu;
