@@ -196,26 +196,36 @@ void C_LWLinear(
 
   memset(sample_cov_star, (double) 0.0, p2 * sizeof(double));
 
+  // Precompute data^2
+  double * data2 = malloc(n * p * sizeof(double));
+  #pragma omp parallel for if(n * p >= SQUARE(PARALLEL_THRESHOLD))
+    for (size_t i = 0; i < n * p; ++i) {
+        data2[i] = SQUARE(data[i]);
+  }
+
   // Construct cov and compute beta_
   double beta_ = 0.0;
   // The order of pi k pj is chosen as to prevent write collisions to sample_cov_star
-  #pragma omp parallel for reduction(+:beta_) if(p2 >= PARALLEL_THRESHOLD)
+  #pragma omp parallel for reduction(+:beta_) if(p >= PARALLEL_THRESHOLD)
   for (size_t pi = 0; pi < p; ++pi) {
-    double beta_part = 0.0;
-    for (size_t k = 0; k < n; ++k) {
-      double tmp = data[k*p + pi];
-      for (size_t pj = 0; pj < p; ++pj) {
-        sample_cov_star[pi*p + pj] += tmp * data[k*p + pj];
-        beta_part += SQUARE(tmp) * SQUARE(data[k*p + pj]);
+      double beta_part = 0.0;
+      for (size_t k = 0; k < n; ++k) {
+          double data_ik = data[k*p + pi];
+          double x2_ik = data2[k*p + pi];
+          for (size_t pj = 0; pj < p; ++pj) {
+              sample_cov_star[pi*p + pj] += data_ik * data[k*p + pj];
+              beta_part += x2_ik * data2[k*p + pj];
+          }
       }
-    }
-    beta_ += beta_part;
+      beta_ += beta_part;
   }
+
+  free(data2);
 
   // Compute delta_ from the cov
   // and scale the cov
   double delta_ = 0.0;
-  #pragma omp parallel for reduction(+:delta_) if(p2 >= PARALLEL_THRESHOLD)
+  #pragma omp parallel for reduction(+:delta_) if(p >= PARALLEL_THRESHOLD)
   for (size_t pi = 0; pi < p; ++pi) {
     double delta_part = 0.0;
     for (size_t pj = 0; pj < p; ++pj) {
