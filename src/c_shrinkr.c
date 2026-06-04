@@ -196,6 +196,8 @@ void C_LWLinear(
 
   double beta_ = 0.0;
   double delta_ = 0.0;
+
+  // TODO: Make the loops more efficient for SIMD
   for (size_t pi = 0; pi < p; ++pi) {
 
     double beta_part = 0.0;
