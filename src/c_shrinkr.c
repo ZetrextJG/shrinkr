@@ -194,32 +194,34 @@ void C_LWLinear(
   size_t p2 = SQUARE(p);
   size_t n2 = SQUARE(n);
 
+  memset(sample_cov_star, (double) 0.0, p2 * sizeof(double));
+
+  // Construct cov and compute beta_
   double beta_ = 0.0;
-  double delta_ = 0.0;
-
-  // TODO: Make the loops more efficient for SIMD
+  // The order of pi k pj is chosen as to prevent write collisions to sample_cov_star
+  #pragma omp parallel for reduction(+:beta_) if(p2 >= PARALLEL_THRESHOLD)
   for (size_t pi = 0; pi < p; ++pi) {
-
     double beta_part = 0.0;
-    double delta_part = 0.0;
-
-    for (size_t pj = 0; pj < p; ++pj) {
-      double xdot = 0.0; // dot(X.T @ X)  [pi, pj]
-      double x2dot = 0.0; // dot(X2.T @ X2) [pi, pj]
-
-      for (size_t i = 0; i < n; ++i) {
-        xdot += data[p*i + pj] * data[p*i + pi];
-        x2dot += SQUARE(data[p*i + pj]) * SQUARE(data[p*i + pi]);
+    for (size_t k = 0; k < n; ++k) {
+      double tmp = data[k*p + pi];
+      for (size_t pj = 0; pj < p; ++pj) {
+        sample_cov_star[pi*p + pj] += tmp * data[k*p + pj];
+        beta_part += SQUARE(tmp) * SQUARE(data[k*p + pj]);
       }
-
-      beta_part += x2dot;
-      delta_part += SQUARE(xdot);
-
-      // Construct cov also
-      sample_cov_star[pi*p + pj] = xdot / n;
     }
-
     beta_ += beta_part;
+  }
+
+  // Compute delta_ from the cov
+  // and scale the cov
+  double delta_ = 0.0;
+  #pragma omp parallel for reduction(+:delta_) if(p2 >= PARALLEL_THRESHOLD)
+  for (size_t pi = 0; pi < p; ++pi) {
+    double delta_part = 0.0;
+    for (size_t pj = 0; pj < p; ++pj) {
+      delta_part += SQUARE(sample_cov_star[pi*p + pj]);
+      sample_cov_star[pi*p + pj] /= n;
+    }
     delta_ += delta_part;
   }
   delta_ /= n2;
