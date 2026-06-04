@@ -25,4 +25,24 @@ void C_LWLinear(
     size_t p // Dimensions of both x and y
 );
 
+double C_DEALObjective(
+    const double * const base_evals,
+    const double * const surr_evals,
+    const double * const z_vec,
+    double gamma,
+    double * start_value,
+    size_t n,
+    size_t p
+);
+
+double C_DEAL(
+    const double * const base_evals,
+    const double * const surr_evals,
+    const double * const z_vec,
+    double gamma_min,
+    double gamma_max,
+    size_t n,
+    size_t p
+);
+
 #endif

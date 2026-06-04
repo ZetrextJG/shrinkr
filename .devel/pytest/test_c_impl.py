@@ -1,8 +1,14 @@
 import numpy as np
 
-from shrinkr.functional import lw_analytical, lw_linear, oas
+from shrinkr.functional import deal, deal_objective, lw_analytical, lw_linear, oas
 from shrinkr.monte_carlo import get_large_sample_cov
-from shrinkr.reference import ref_lw_analytical, ref_lw_linear, ref_oas
+from shrinkr.reference import (
+    ref_deal,
+    ref_deal_objective,
+    ref_lw_analytical,
+    ref_lw_linear,
+    ref_oas,
+)
 
 
 def test_lw_linear():
@@ -53,3 +59,28 @@ def test_oas():
 
     assert np.allclose(ref_diag, value_diag)
     assert np.allclose(ref, value)
+
+
+def test_deal():
+    p = 50
+    n = 60
+    _, sc, rc = get_large_sample_cov(p=p, n=n, seed=42)
+
+    lam, U = np.linalg.eigh(sc)
+    lam_lw = lw_analytical(lam, n, p)
+    mean_diff = np.ones(p)
+    mean_diff /= np.linalg.norm(mean_diff, ord=2)
+    z_vec = U.T @ mean_diff
+
+    # Test objectives
+    for gamma in np.linspace(0.1, 1.0, 10):
+        gamma = float(gamma)
+        obj1 = ref_deal_objective(lam_lw, lam, z_vec, gamma, n)[0]
+        obj2 = deal_objective(lam_lw, lam, z_vec, gamma, n)
+        assert np.allclose(obj1, obj2)
+
+    # Test results
+    lam1 = ref_deal(lam, z_vec, n)
+    lam2 = deal(lam, z_vec, n)
+
+    assert np.allclose(lam1, lam2)

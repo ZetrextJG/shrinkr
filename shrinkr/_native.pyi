@@ -6,3 +6,21 @@ def py_lw_analytical(
 ) -> NDArray[np.float64]: ...
 def py_lw_linear(X: NDArray[np.float64], n: int, p: int) -> NDArray[np.float64]: ...
 def py_oas(sample_cov: NDArray[np.float64], n: int, p: int) -> NDArray[np.float64]: ...
+def py_deal_objective(
+    base_evals: NDArray[np.float64],
+    surr_evals: NDArray[np.float64],
+    z_vec: NDArray[np.float64],
+    gamma: float,
+    start_value: float,
+    n: int,
+    p: int,
+) -> NDArray[np.float64]: ...
+def py_deal(
+    base_evals: NDArray[np.float64],
+    surr_evals: NDArray[np.float64],
+    z_vec: NDArray[np.float64],
+    gamma_min: float,
+    gamma_max: float,
+    n: int,
+    p: int,
+) -> NDArray[np.float64]: ...

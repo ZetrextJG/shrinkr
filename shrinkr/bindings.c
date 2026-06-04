@@ -1,5 +1,6 @@
 #include <Python.h>
 #include "c_shrinkr.h"
+#include "floatobject.h"
 #include "methodobject.h"
 #include "pyerrors.h"
 
@@ -161,8 +162,112 @@ static PyObject* py_lw_linear(PyObject* self, PyObject* args) {
   return sample_cov_star_obj;
 }
 
+static PyObject* py_deal_objective(PyObject* self, PyObject* args) {
+  PyObject *base_evals_obj;
+  PyObject *surr_evals_obj;
+  PyObject *z_vec_obj;
+  double gamma, start_value;
+  Py_ssize_t py_n, py_p;
+  size_t n, p;
+
+  // Extract args
+  if (!PyArg_ParseTuple(
+    args, "OOOddnn",
+    &base_evals_obj, &surr_evals_obj, &z_vec_obj,
+    &gamma, &start_value, &py_n, &py_p
+  )) return NULL;
+
+  // Checks for base_evals
+  const double* const base_evals = get_numpy_data_safe(base_evals_obj, "base_evals", TRUE, FALSE);
+  if (!base_evals) return NULL;
+
+  // Checks for surr_evals
+  const double* const surr_evals = get_numpy_data_safe(surr_evals_obj, "surr_evals", TRUE, FALSE);
+  if (!surr_evals) return NULL;
+
+  // Checks for z_vec
+  const double* const z_vec = get_numpy_data_safe(z_vec_obj, "z_vec", TRUE, FALSE);
+  if (!z_vec) return NULL;
+
+  // Checks for gamma_min and gamma_max
+  if (gamma <= 0) {
+      PyErr_SetString(PyExc_ValueError, "gamma must be a positive float");
+      return NULL;
+  }
+  if (start_value <= 0) {
+      PyErr_SetString(PyExc_ValueError, "start_value must be a positive float");
+      return NULL;
+  }
+
+  // Checks for shape
+  PARSE_POSITIVE_SIZE_T(py_n, n, "n");
+  PARSE_POSITIVE_SIZE_T(py_p, p, "p");
+
+  double start_value2 = start_value;
+
+  // Execute C code
+  double objective = C_DEALObjective(base_evals, surr_evals, z_vec, gamma, &start_value2, n, p);
+
+  // Return object
+  return PyFloat_FromDouble(objective);
+}
+
+static PyObject* py_deal(PyObject* self, PyObject* args) {
+  PyObject *base_evals_obj;
+  PyObject *surr_evals_obj;
+  PyObject *z_vec_obj;
+  double gamma_min, gamma_max;
+  Py_ssize_t py_n, py_p;
+  size_t n, p;
+
+  // Extract args
+  if (!PyArg_ParseTuple(
+    args, "OOOddnn",
+    &base_evals_obj, &surr_evals_obj, &z_vec_obj,
+    &gamma_min, &gamma_max, &py_n, &py_p
+  )) return NULL;
+
+  // Checks for base_evals
+  const double* const base_evals = get_numpy_data_safe(base_evals_obj, "base_evals", TRUE, FALSE);
+  if (!base_evals) return NULL;
+
+  // Checks for surr_evals
+  const double* const surr_evals = get_numpy_data_safe(surr_evals_obj, "surr_evals", TRUE, FALSE);
+  if (!surr_evals) return NULL;
+
+  // Checks for z_vec
+  const double* const z_vec = get_numpy_data_safe(z_vec_obj, "z_vec", TRUE, FALSE);
+  if (!z_vec) return NULL;
+
+  // Checks for gamma_min and gamma_max
+  if (gamma_min <= 0) {
+      PyErr_SetString(PyExc_ValueError, "gamma_min must be a positive float");
+      return NULL;
+  }
+  if (gamma_max <= 0) {
+      PyErr_SetString(PyExc_ValueError, "gamma_max must be a positive float");
+      return NULL;
+  }
+  if (gamma_min >= gamma_max) {
+      PyErr_SetString(PyExc_ValueError, "Requirement: gamma_max > gamma_min not met");
+      return NULL;
+  }
+
+  // Checks for shape
+  PARSE_POSITIVE_SIZE_T(py_n, n, "n");
+  PARSE_POSITIVE_SIZE_T(py_p, p, "p");
+
+  // Execute C code
+  double optimal_gamma = C_DEAL(base_evals, surr_evals, z_vec, gamma_min, gamma_max, n, p);
+
+  // Return object
+  return PyFloat_FromDouble(optimal_gamma);
+}
+
 
 static PyMethodDef Methods[] = {
+    {"py_deal", py_deal, METH_VARARGS, "Performs (DEAL) Deterministic Equivalents Adjusted LDA"},
+    {"py_deal_objective", py_deal_objective, METH_VARARGS, "Objective of (DEAL) Deterministic Equivalents Adjusted LDA"},
     {"py_lw_analytical", py_lw_analytical, METH_VARARGS, "Performs LW Analytical Shrinkage"},
     {"py_lw_linear", py_lw_linear, METH_VARARGS, "Performs LW Linear Shrinkage"},
     {"py_oas", py_oas, METH_VARARGS, "Performs (OAS) Oracle Approximating Shrinkage"},

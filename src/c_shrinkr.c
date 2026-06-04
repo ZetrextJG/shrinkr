@@ -4,11 +4,14 @@
 #include <string.h>
 #include "c_shrinkr.h"
 #define SQRT5 2.23606797749979
+#define PHI   0.61803398874985
 #define PARALLEL_THRESHOLD 200
 #define DOUBLE_EPS 1e-12
-#define SQUARE(x) (x * x)
-#define MAX(x, y) ((x > y) ? x : y)
-#define MIN(x, y) ((x > y) ? y : x)
+#define SQUARE(x) ((x) * (x))
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#define MIN(x, y) (((x) > (y)) ? (y) : (x))
+#define DEAL_MAX_ITERS 200
+#define DEAL_EPS 1e-8
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -80,7 +83,7 @@ void C_OAS(
 
   // Add on the diagonal
   double add_value = shrinkage * mu;
-  for (size_t i = 0; i < p; ++i) {
+for (size_t i = 0; i < p; ++i) {
     sample_cov_star[i*p + i] += add_value;
   }
 
@@ -255,4 +258,111 @@ void C_LWLinear(
   }
 
   return ;
+}
+
+
+double C_DEALObjective(
+    const double * const base_evals,
+    const double * const surr_evals,
+    const double * const z_vec,
+    double gamma,
+    double * start_value,
+    size_t n,
+    size_t p
+) {
+  double * const inv_diag = malloc(p * sizeof(double));
+
+  // Compute delta
+  double delta = *start_value;
+  double curr_delta;
+
+  for (size_t ii = 0; ii < DEAL_MAX_ITERS; ++ii) {
+    curr_delta = 0.0;
+    for (size_t i = 0; i < p; ++i) {
+      inv_diag[i] = gamma + (surr_evals[i] / (1 + delta));
+      curr_delta += surr_evals[i] / inv_diag[i];
+    }
+    curr_delta /= n;
+    if (fabs(delta - curr_delta) <= DEAL_EPS) {
+      break;
+    }
+    delta = curr_delta;
+  }
+
+  // Set the new start_value (for the future)
+  *start_value = delta;
+
+  // Compute delta prime
+  double a = 0.0;
+  double b = 0.0;
+  double inner;
+  for (size_t i = 0; i < p; ++i) {
+    inner = surr_evals[i] / inv_diag[i];
+    a += surr_evals[i] / SQUARE(inv_diag[i]);
+    b += SQUARE(inner);
+  }
+  b /= SQUARE(1 + delta);
+  double delta_prime = (-a) / (n - b);
+
+  // Compute a_gamma, b_gamma
+  double a_gamma = 0.0;
+  double b_gamma = 0.0;
+  double z2_i, beta_i, diag_i, delta_inv_diagT_i;
+  for (size_t i = 0; i < p; ++i) {
+    z2_i = SQUARE(z_vec[i]);
+    beta_i = 1.0 / (1.0 + delta);
+    diag_i = 1.0 / inv_diag[i];
+    delta_inv_diagT_i = 1 - delta_prime * surr_evals[i] * SQUARE(beta_i);
+
+    b_gamma += z2_i * diag_i;
+    a_gamma -= z2_i * base_evals[i] * SQUARE(diag_i) * delta_inv_diagT_i;
+  }
+
+  return SQUARE(b_gamma) / a_gamma;
+}
+
+
+double C_DEAL(
+    const double * const base_evals,
+    const double * const surr_evals,
+    const double * const z_vec,
+    double gamma_min,
+    double gamma_max,
+    size_t n,
+    size_t p
+) {
+  double delta = 1.0;
+
+  #define cost(log_gamma) C_DEALObjective(base_evals, surr_evals, z_vec, exp(log_gamma), &delta, n, p)
+
+  // a, b, c and d are the points for the golden section search
+  double a, b, c, d;
+  double cost_c, cost_d;
+
+  a = log(gamma_min);
+  b = log(gamma_max);
+  do {
+    c = b - PHI * (b - a);
+    d = a + PHI * (b - a);
+    cost_c = cost(c);
+    cost_d = cost(d);
+
+    if (cost_c < cost_d) {
+      b = d;
+      d = c;
+      cost_d = cost_c;
+      c = b - PHI * (b - a);
+      cost_c = cost(c);
+    } else {
+      a = c;
+      c = d;
+      cost_c = cost_d;
+      d = a + PHI * (b - a);
+      cost_d = cost(d);
+    }
+  } while (fabs(a - b) > DEAL_EPS);
+
+  double optimal_log_gamma = (a + b) / 2.0;
+  double optimal_gamma = exp(optimal_log_gamma);
+  return optimal_gamma;
 }

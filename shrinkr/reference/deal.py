@@ -13,7 +13,6 @@ def deterministic_equivalent_objective(
     n: int,
     start_value: float = 1,
     max_iters: int = 200,
-    mu_noise_scale: float = 0.0,
     eps: float = 1e-8,
 ):
     """
@@ -141,7 +140,7 @@ def golden_section_search(objective_fn, a, b, initial_delta, tol=1e-5):
 EigenvalueOptions = Literal["lw_analytical", "empirical"]
 
 
-def deal_shrinkage(
+def ref_deal(
     evals: np.ndarray,
     z_vec: np.ndarray,
     n_eff: int,

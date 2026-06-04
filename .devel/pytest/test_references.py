@@ -8,7 +8,7 @@ from shrinkr.reference import (
     ref_lw_linear,
     ref_oas,
 )
-from shrinkr.reference.deal import deal_shrinkage
+from shrinkr.reference.deal import ref_deal
 
 
 def test_lw_linear_example():
@@ -53,7 +53,7 @@ def test_deal():
     v0 = np.linalg.solve(sc, mean_diff)
     fm0 = loss_fm(v0, rc, mean_diff)
 
-    lam1 = deal_shrinkage(lam, z_vec, n)
+    lam1 = ref_deal(lam, z_vec, n)
     assert lam1.shape == lam.shape
     v1 = U @ (z_vec / (lam1 + 1e-12))
 
