@@ -113,9 +113,6 @@ static PyObject* py_oas(PyObject* self, PyObject* args) {
 
   // Create output object
   npy_intp dims[2] = {p, p};
-  // TODO: Make sure that sample_cov_obj and sample_cov_star_obj
-  // have the same structure in terms of the memory layout. 
-  // Or enforce the C contiguous on sample_cov
   PyObject * const sample_cov_star_obj = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
   if (!sample_cov_star_obj) return NULL;
   PyArrayObject* sample_cov_star_pyarr = (PyArrayObject*) sample_cov_star_obj;
