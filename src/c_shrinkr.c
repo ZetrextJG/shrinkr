@@ -1,20 +1,89 @@
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 #include "c_shrinkr.h"
 #define SQRT5 2.23606797749979
 #define PARALLEL_THRESHOLD 200
+#define DOUBLE_EPS 1e-12
+#define SQUARE(x) (x * x)
 
 #ifdef _OPENMP
 #include <omp.h>
 #endif
 
-double square(double x) {
-  return x * x;
-}
+// Utilities functions
 
 double relu(double x) {
   return x > 0.0 ? x : 0.0;
 }
+
+double clip(double x, double min, double max) {
+  if (x < min) {
+    return min;
+  } else if (x > max) {
+    return max;
+  }
+  return x;
+}
+
+double trace(const double * const matrix, size_t p) {
+  double acc = 0;
+  for (size_t i = 0; i < p; ++i) {
+    acc += matrix[i*p + i];
+  }
+  return acc;
+}
+
+double traceS2divp2(const double * const matrix, size_t p) {
+  // Computes tr(S @ S.T) / (p^2) for a symmetric matrix S
+  double acc = 0;
+  size_t max_iter = SQUARE(p);
+  #pragma omp parallel for reduction(+:acc) if(max_iter >= PARALLEL_THRESHOLD)
+  for (size_t i = 0; i < max_iter ; ++i) {
+    acc += SQUARE(matrix[i]) / max_iter;
+  }
+  return acc;
+}
+
+void scalar_multiply(double * const data, size_t n, double scale) {
+  #pragma omp parallel for if(n >= PARALLEL_THRESHOLD)
+  for (size_t i = 0; i < n ; ++i) {
+    data[i] = scale * data[i];
+  }
+}
+
+// Main implementation
+void C_OAS(
+    const double * const sample_cov, // Sample covariance
+    double * const sample_cov_star, // Shrunk covariance
+    size_t n, // Number of samples used
+    size_t p  // Dimensions of the sample_cov
+) {
+  size_t p2 = SQUARE(p);
+
+  // Init the sample_cov_star matrix as sample_cov
+  memcpy(sample_cov_star, sample_cov, p2);
+
+  double alpha = traceS2divp2(sample_cov, p);
+  double mu = trace(sample_cov, p) / p;
+  double mu_squared = SQUARE(mu);
+
+  double num = alpha + mu_squared;
+  double denom = (n + 1) * (alpha - mu_squared / p);
+  double shrinkage = denom < DOUBLE_EPS ? 1.0 : clip(num / denom, 0, 1);
+
+  // Shrink the cov
+  scalar_multiply(sample_cov_star, SQUARE(p), shrinkage);
+
+  // Add on the diagonal
+  double add_value = shrinkage * mu;
+  for (size_t i = 0; i < p; ++i) {
+    sample_cov_star[i*p + i] += add_value;
+  }
+
+  return ;
+}
+
 
 void C_LWAnalytical(
     const double * const lam, // Input data
@@ -51,8 +120,8 @@ void C_LWAnalytical(
     for (size_t j = 0; j < max_iter; ++j) {
       x = (t_lam[i] - t_lam[j]) / (t_lam[j] * h);
       abs_x = fabs(x);
-      x2 = square(x);
-      x4 = square(x2);
+      x2 = SQUARE(x);
+      x4 = SQUARE(x2);
 
       // hfi
       if (fabs(abs_x - SQRT5) < eps) {
@@ -67,7 +136,7 @@ void C_LWAnalytical(
       hfi += hfi_part / (h * t_lam[j]);
 
       // fi
-      fi += c1 * relu(1 - square(x) / 5) / (t_lam[j] * h);
+      fi += c1 * relu(1 - SQUARE(x) / 5) / (t_lam[j] * h);
     }
 
     // Convert sums to means
@@ -77,10 +146,10 @@ void C_LWAnalytical(
     if (p <= n) {
       denom_p1 = M_PI * ratio * fi * t_lam[i];
       denom_p2 = 1 - ratio - M_PI * ratio * hfi * t_lam[i];
-      t_lam_star[i] = t_lam[i] / (square(denom_p1) + square(denom_p2));
+      t_lam_star[i] = t_lam[i] / (SQUARE(denom_p1) + SQUARE(denom_p2));
     } else {
-      denom_p1 = M_PI * M_PI * square(t_lam[i]);
-      denom_p2 = square(fi) + square(hfi);
+      denom_p1 = M_PI * M_PI * SQUARE(t_lam[i]);
+      denom_p2 = SQUARE(fi) + SQUARE(hfi);
       t_lam_star[i] = t_lam[i] / (denom_p1 * denom_p2);
     }
   }
@@ -96,9 +165,9 @@ void C_LWAnalytical(
 
     double hf0 = (
       (1.0 / M_PI) * (
-        (3.0 / 10.0 / square(h)) + 
+        (3.0 / 10.0 / SQUARE(h)) + 
           (3.0 / 4.0 / SQRT5 / h) *
-          (1.0 - 1.0 / 5.0 / square(h)) *
+          (1.0 - 1.0 / 5.0 / SQUARE(h)) *
           log((1.0 + SQRT5 * h) / (1 - SQRT5 * h))
       )
     ) * inv_lams_mean;

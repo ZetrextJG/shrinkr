@@ -4,9 +4,9 @@ from shrinkr.functional import loss_fm, prial
 from shrinkr.monte_carlo import get_large_sample_cov, get_small_sample_cov
 from shrinkr.reference import (
     lw_linear_shrinkage,
-    oas_shrinkage,
     ref_lw_analytical,
     ref_lw_analytical_unstable,
+    ref_oas,
 )
 from shrinkr.reference.deal import deal_shrinkage
 
@@ -64,6 +64,7 @@ def test_deal():
 
 
 def test_oas():
-    X, _, real_cov = get_small_sample_cov()
-    sc_hat, shrinkage = oas_shrinkage(X)
+    X, sample_cov, real_cov = get_small_sample_cov()
+    n = X.shape[0]
+    sc_hat, shrinkage = ref_oas(sample_cov, n)
     assert 0 <= shrinkage <= 1

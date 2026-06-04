@@ -83,8 +83,66 @@ static PyObject* py_lw_analytical(PyObject* self, PyObject* args) {
   return lams_star_obj;
 }
 
+static PyObject* py_oas(PyObject* self, PyObject* args) {
+  if (PyTuple_Size(args) != 3)
+    return PyErr_Format(PyExc_RuntimeError, "expected 3 arguments");
+
+  // Unpack args
+  PyObject* sample_cov_obj = PyTuple_GetItem(args, 0);
+  if (!sample_cov_obj) return NULL;
+  PyObject* n_obj = PyTuple_GetItem(args, 1);
+  if (!n_obj) return NULL;
+  PyObject* p_obj = PyTuple_GetItem(args, 2);
+  if (!p_obj) return NULL;
+
+  // Checks for sample_cov
+  if (!PyArray_Check(sample_cov_obj)) {
+    PyErr_SetString(PyExc_RuntimeError, "expected a numpy matrix");
+    return NULL;
+  }
+  const PyArrayObject* sample_cov_pyarr = (const PyArrayObject*) sample_cov_obj;
+  if (PyArray_TYPE(sample_cov_pyarr) != NPY_DOUBLE) {
+    PyErr_SetString(PyExc_RuntimeError, "expected a numpy double-typed matrix");
+    return NULL;
+  }
+  const double* const sample_cov = PyArray_DATA(sample_cov_pyarr);
+
+  // Checks for n
+  if (!PyNumber_Check(n_obj)) {
+    PyErr_SetString(PyExc_TypeError, "n must be positive integer");
+    return NULL;
+  }
+  size_t n = PyNumber_AsSsize_t(n_obj, NULL);
+  if (n == -1 && PyErr_Occurred())  return NULL;
+
+  // Checks for p
+  if (!PyNumber_Check(p_obj)) { 
+    PyErr_SetString(PyExc_TypeError, "p must be positive integer");
+    return NULL;
+  }
+  size_t p = PyNumber_AsSsize_t(p_obj, NULL);
+  if (p == -1 && PyErr_Occurred())  return NULL;
+
+  // Create output object
+  npy_intp dims[2] = {p, p};
+  // TODO: Make sure that sample_cov_obj and sample_cov_star_obj
+  // have the same structure in terms of the memory layout. 
+  // Or enforce the C contiguous on sample_cov
+  PyObject * const sample_cov_star_obj = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
+  if (!sample_cov_star_obj) return NULL;
+  PyArrayObject* sample_cov_star_pyarr = (PyArrayObject*) sample_cov_star_obj;
+  double * sample_cov_star = PyArray_DATA(sample_cov_star_pyarr);
+
+  // Execute C code
+  C_OAS(sample_cov, sample_cov_star, n, p);
+
+  // Return object
+  return sample_cov_star_obj;
+}
+
 static PyMethodDef Methods[] = {
-    {"py_lw_analytical", py_lw_analytical, METH_VARARGS, "Performs LW analytical shrinkage"},
+    {"py_lw_analytical", py_lw_analytical, METH_VARARGS, "Performs LW Analytical Shrinkage"},
+    {"py_oas", py_oas, METH_VARARGS, "Performs (OAS) Oracle Approximating Shrinkage"},
     {NULL, NULL, 0, NULL}
 };
 
