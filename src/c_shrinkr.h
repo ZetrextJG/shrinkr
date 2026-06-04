@@ -22,8 +22,7 @@ void C_LWLinear(
     const double * const data, // Data n x p
     double * const sample_cov_star, // Shrunk covariance buffer
     size_t n, // Number of samples used
-    size_t p, // Dimensions of both x and y
-    size_t block_size // Block size used for computation
+    size_t p // Dimensions of both x and y
 );
 
 #endif

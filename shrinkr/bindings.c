@@ -130,13 +130,13 @@ static PyObject* py_oas(PyObject* self, PyObject* args) {
 
 static PyObject* py_lw_linear(PyObject* self, PyObject* args) {
   PyObject *data_obj;
-  Py_ssize_t py_n, py_p, py_block_size;
-  size_t n, p, block_size;
+  Py_ssize_t py_n, py_p;
+  size_t n, p;
 
   // Extract args
   if (!PyArg_ParseTuple(
-    args, "Onnn",
-    &data_obj, &py_n, &py_p, &py_block_size
+    args, "Onn",
+    &data_obj, &py_n, &py_p
   )) return NULL;
 
   // Checks for data
@@ -146,7 +146,6 @@ static PyObject* py_lw_linear(PyObject* self, PyObject* args) {
   // Checks for positive numbers
   PARSE_POSITIVE_SIZE_T(py_n, n, "n");
   PARSE_POSITIVE_SIZE_T(py_p, p, "p");
-  PARSE_POSITIVE_SIZE_T(py_block_size, block_size, "block_size");
 
   // Create output object
   npy_intp dims[2] = {p, p};
@@ -156,7 +155,7 @@ static PyObject* py_lw_linear(PyObject* self, PyObject* args) {
   double * sample_cov_star = PyArray_DATA(sample_cov_star_pyarr);
 
   // Execute C code
-  C_LWLinear(data, sample_cov_star, n, p, block_size);
+  C_LWLinear(data, sample_cov_star, n, p);
 
   // Return object
   return sample_cov_star_obj;

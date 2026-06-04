@@ -3,7 +3,7 @@ import numpy as np
 from shrinkr._native import py_lw_linear
 
 
-def lw_linear(X: np.ndarray, assume_centered: bool = False, block_size: int = 1000) -> np.ndarray:
+def lw_linear(X: np.ndarray, assume_centered: bool = False) -> np.ndarray:
 
     # for only one feature, the result is the same whatever the shrinkage
     if len(X.shape) == 2 and X.shape[1] == 1:
@@ -19,5 +19,5 @@ def lw_linear(X: np.ndarray, assume_centered: bool = False, block_size: int = 10
     if not assume_centered:
         X = X - X.mean(0)
 
-    sample_cov_star = py_lw_linear(X, n, p, block_size)
+    sample_cov_star = py_lw_linear(X, n, p)
     return sample_cov_star
