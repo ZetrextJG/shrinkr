@@ -22,8 +22,12 @@
     } while (0)
 
 
+typedef int bool;
+#define TRUE 1
+#define FALSE 0
+
 // Helper functions
-static double * get_numpy_data_safe(PyObject* obj, const char * name) {
+static double * get_numpy_data_safe(PyObject* obj, const char * name, const bool c_cont, const bool f_cont) {
   if (!PyArray_Check(obj)) {
     PyErr_Format(PyExc_RuntimeError, "%s to be a expected a numpy array", name);
     return NULL;
@@ -33,8 +37,12 @@ static double * get_numpy_data_safe(PyObject* obj, const char * name) {
     PyErr_Format(PyExc_RuntimeError, "%s expected to be a numpy double-typed array", name);
     return NULL;
   }
-  if (!PyArray_IS_C_CONTIGUOUS(pyarr)) {
-    PyErr_Format(PyExc_RuntimeError, "%s expected to be a contiguous array", name); 
+  if (c_cont && !PyArray_IS_C_CONTIGUOUS(pyarr)) {
+    PyErr_Format(PyExc_RuntimeError, "%s expected to be a C contiguous array", name); 
+    return NULL;
+  }
+  if (f_cont && !PyArray_IS_F_CONTIGUOUS(pyarr)) {
+    PyErr_Format(PyExc_RuntimeError, "%s expected to be a F contiguous array", name); 
     return NULL;
   }
   double* lams = PyArray_DATA(pyarr);
@@ -56,7 +64,7 @@ static PyObject* py_lw_analytical(PyObject* self, PyObject* args) {
   )) return NULL;
 
   // Checks for lams
-  const double* const lams = get_numpy_data_safe(lams_obj, "lams");
+  const double* const lams = get_numpy_data_safe(lams_obj, "lams", TRUE, FALSE);
   if (!lams) return NULL;
 
   // Checks for shape
@@ -95,7 +103,7 @@ static PyObject* py_oas(PyObject* self, PyObject* args) {
   )) return NULL;
 
   // Checks for sample_cov
-  const double* const sample_cov = get_numpy_data_safe(sample_cov_obj, "sample_cov");
+  const double* const sample_cov = get_numpy_data_safe(sample_cov_obj, "sample_cov", TRUE, FALSE);
   if (!sample_cov) return NULL;
 
   // Checks for shape
@@ -132,7 +140,7 @@ static PyObject* py_lw_linear(PyObject* self, PyObject* args) {
   )) return NULL;
 
   // Checks for data
-  const double* const data = get_numpy_data_safe(data_obj, "data");
+  const double* const data = get_numpy_data_safe(data_obj, "data", TRUE, FALSE);
   if (!data) return NULL;
 
   // Checks for positive numbers
@@ -157,6 +165,7 @@ static PyObject* py_lw_linear(PyObject* self, PyObject* args) {
 
 static PyMethodDef Methods[] = {
     {"py_lw_analytical", py_lw_analytical, METH_VARARGS, "Performs LW Analytical Shrinkage"},
+    {"py_lw_linear", py_lw_linear, METH_VARARGS, "Performs LW Linear Shrinkage"},
     {"py_oas", py_oas, METH_VARARGS, "Performs (OAS) Oracle Approximating Shrinkage"},
     {NULL, NULL, 0, NULL}
 };

@@ -48,8 +48,7 @@ def ref_lw_linear(
     if not assume_centered:
         X = X - X.mean(0)
 
-    sample_cov = np.cov(X, rowvar=False)
-
+    sample_cov = (X.T @ X) / X.shape[0]
     # A non-blocked version of the computation is present in the tests
     # in tests/test_covariance.py
 
@@ -58,6 +57,7 @@ def ref_lw_linear(
     X2 = X**2
     emp_cov_trace = np.sum(X2, axis=0) / n_samples
     mu = np.sum(emp_cov_trace) / n_features
+
     beta_ = 0.0  # sum of the coefficients of <X2.T, X2>
     delta_ = 0.0  # sum of the *squared* coefficients of <X.T, X>
     # starting block computation
@@ -70,13 +70,16 @@ def ref_lw_linear(
         rows = slice(block_size * i, block_size * (i + 1))
         beta_ += np.sum(np.dot(X2.T[rows], X2[:, block_size * n_splits :]))
         delta_ += np.sum(np.dot(X.T[rows], X[:, block_size * n_splits :]) ** 2)
+
     for j in range(n_splits):
         cols = slice(block_size * j, block_size * (j + 1))
         beta_ += np.sum(np.dot(X2.T[block_size * n_splits :], X2[:, cols]))
         delta_ += np.sum(np.dot(X.T[block_size * n_splits :], X[:, cols]) ** 2)
+
     delta_ += np.sum(np.dot(X.T[block_size * n_splits :], X[:, block_size * n_splits :]) ** 2)
     delta_ /= n_samples**2
     beta_ += np.sum(np.dot(X2.T[block_size * n_splits :], X2[:, block_size * n_splits :]))
+
     # use delta_ to compute beta
     beta = 1.0 / (n_features * n_samples) * (beta_ / n_samples - delta_)
     # delta is the sum of the squared coefficients of (<X.T,X> - mu*Id) / p

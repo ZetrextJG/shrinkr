@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <string.h>
 #include "c_shrinkr.h"
@@ -6,6 +7,8 @@
 #define PARALLEL_THRESHOLD 200
 #define DOUBLE_EPS 1e-12
 #define SQUARE(x) (x * x)
+#define MAX(x, y) ((x > y) ? x : y)
+#define MIN(x, y) ((x > y) ? y : x)
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -177,6 +180,74 @@ void C_LWAnalytical(
       lam_star[i] =  dtilde0;
     }
 
+  }
+
+  return ;
+}
+
+void C_LWLinear(
+    const double * const data, // Data n x p (c contiguous)
+    double * const sample_cov_star, // Shrunk covariance buffer
+    size_t n, // Number of samples used
+    size_t p, // Number of features
+    size_t block_size // Block size used for computation
+) {
+  size_t p2 = SQUARE(p);
+  size_t n2 = SQUARE(n);
+
+  size_t n_splits = p / block_size;
+
+  // Non block impl
+  double beta_ = 0.0;
+  double delta_ = 0.0;
+  for (size_t pi = 0; pi < p; ++pi) {
+
+    double beta_part = 0.0;
+    double delta_part = 0.0;
+
+    for (size_t pj = 0; pj < p; ++pj) {
+      double xdot = 0.0; // dot(X.T @ X)  [pi, pj]
+      double x2dot = 0.0; // dot(X2.T @ X2) [pi, pj]
+
+      for (size_t i = 0; i < n; ++i) {
+        xdot += data[p*i + pj] * data[p*i + pi];
+        x2dot += SQUARE(data[p*i + pj]) * SQUARE(data[p*i + pi]);
+      }
+
+      beta_part += x2dot;
+      delta_part += SQUARE(xdot);
+
+      // Construct cov also
+      sample_cov_star[pi*p + pj] = xdot / n;
+    }
+
+    beta_ += beta_part;
+    delta_ += delta_part;
+  }
+  delta_ /= n2;
+
+  double cov_trace = trace(sample_cov_star, p);
+  double mu = cov_trace / p;
+
+  double beta = 1.0 / (n * p) * (beta_ / n - delta_);
+  double delta = delta_ - (SQUARE(mu) * p);
+  delta /= p;
+  beta = MIN(beta, delta);
+
+  double shrinkage = beta < DOUBLE_EPS ? 1.0 : clip(beta / delta, 0, 1);
+
+  for (size_t i = 0; i < p; ++i){
+    printf("%f ", sample_cov_star[i]);
+  }
+  printf("\n");
+
+  // Shrink the cov
+  scalar_multiply(sample_cov_star, p2, (1.0 - shrinkage));
+
+  // Add on the diagonal
+  double add_value = shrinkage * mu;
+  for (size_t i = 0; i < p; ++i) {
+    sample_cov_star[i*p + i] += add_value;
   }
 
   return ;
