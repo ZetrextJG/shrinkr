@@ -318,6 +318,8 @@ double C_DEALObjective(
     a_gamma -= z2_i * base_evals[i] * SQUARE(diag_i) * delta_inv_diagT_i;
   }
 
+  free(inv_diag);
+
   return SQUARE(b_gamma) / a_gamma;
 }
 
