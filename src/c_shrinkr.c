@@ -5,6 +5,7 @@
 #include "c_shrinkr.h"
 #define SQRT5 2.23606797749979
 #define PHI   0.61803398874985
+#define PARALLEL_THRESHOLD_LWA 40
 #define PARALLEL_THRESHOLD 200
 #define DOUBLE_EPS 1e-12
 #define SQUARE(x) ((x) * (x))
@@ -117,7 +118,7 @@ void C_LWAnalytical(
   }
 
   // Handle main part
-  #pragma omp parallel for schedule(guided) if(max_iter >= PARALLEL_THRESHOLD)
+  #pragma omp parallel for schedule(guided) if(max_iter >= PARALLEL_THRESHOLD_LWA)
   for (size_t i = 0; i < max_iter; ++i) {
 
     // Accumulators
