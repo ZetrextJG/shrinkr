@@ -1,3 +1,4 @@
+import gc
 import time
 from collections.abc import Callable
 
@@ -8,7 +9,29 @@ from shrinkr.monte_carlo import get_large_sample_cov
 from shrinkr.reference import ref_lw_analytical, ref_lw_linear, ref_oas
 
 
-def benchmark_shrinkage_implementations(iterations: int = 100) -> None:
+def time_function(func: Callable, args: tuple, iterations: int = 100, repeats: int = 5) -> float:
+    """Runs a function multiple times and returns the best time, handling GC."""
+    best_time = float("inf")
+
+    for _ in range(repeats):
+        # Disable GC before the timed loop
+        gc.disable()
+
+        start = time.perf_counter()
+        for _ in range(iterations):
+            func(*args)
+        elapsed = time.perf_counter() - start
+
+        # Re-enable GC immediately after
+        gc.enable()
+
+        if elapsed < best_time:
+            best_time = elapsed
+
+    return best_time
+
+
+def benchmark_shrinkage_implementations(iterations: int = 50, repeats: int = 8) -> None:
     """
     Benchmarks the reference and optimized shrinkage implementations
     across various matrix dimensions (both p < n and p > n).
@@ -69,16 +92,9 @@ def benchmark_shrinkage_implementations(iterations: int = 100) -> None:
             new_func(X, sc, lam, n, p)
 
             # 2. Benchmark Reference Implementation
-            start_ref = time.perf_counter()
-            for _ in range(iterations):
-                ref_func(X, sc, lam, n, p)
-            ref_time = time.perf_counter() - start_ref
-
-            # 3. Benchmark New/Optimized Implementation
-            start_new = time.perf_counter()
-            for _ in range(iterations):
-                new_func(X, sc, lam, n, p)
-            new_time = time.perf_counter() - start_new
+            args = (X, sc, lam, n, p)
+            ref_time = time_function(ref_func, args, iterations, repeats)
+            new_time = time_function(new_func, args, iterations, repeats)
 
             # 4. Calculate Speedup
             speedup = ref_time / new_time if new_time > 0 else float("inf")
