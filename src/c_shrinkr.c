@@ -167,6 +167,7 @@ void C_LWAnalytical(
       t_lam_star[i] = t_lam[i] / (denom_p1 * denom_p2);
     }
   }
+  free(inv_lam_h);
 
   // Handle the zero eigenvalues
   if (shift > 0) {
