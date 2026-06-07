@@ -98,11 +98,13 @@ void C_LWAnalytical(
     size_t p, // Dimensions of both x and y
     double eps // Epsilon value
 ) {
-  double h = pow(n, - 1.0 / 3.0);
-  double d_p = (double) p;
-  double d_n = (double) n;
-  double ratio = d_p / d_n;
-  double c1 = 3.0 / (4.0 * SQRT5); // \frac{3}{4\sqrt{5}}
+  const double h = pow(n, - 1.0 / 3.0);
+  const double d_p = (double) p;
+  const double d_n = (double) n;
+  const double ratio = d_p / d_n;
+  const double c1 = 3.0 / (4.0 * SQRT5); // \frac{3}{4\sqrt{5}}
+  const double c2 = c1 / M_PI; // \frac{3}{4\sqrt{5}}
+  const double c_linear = (-3.0 / 10.0 / M_PI); // \frac{-3}{10 \pi}
 
   size_t shift = n < p ? p - n : 0;
   size_t max_iter = p - shift;
@@ -119,36 +121,36 @@ void C_LWAnalytical(
   for (size_t i = 0; i < max_iter; ++i) {
 
     // Accumulators
-    double fi  = 0; // \tilde f_n(\lambda_i) - density
-    double hfi = 0; // H_{f_n} (\lambda_i) - hilbert transform
+    double fi  = 0.0; // \tilde f_n(\lambda_i) - density
+    double hfi = 0.0; // H_{f_n} (\lambda_i) - hilbert transform
 
     // Temp variables
-    double x, abs_x, x2, x4;
-    double hfi_part, log_term, linear_term;
-    double denom_p1, denom_p2;
+    double hfi_part, log_term;
 
     // Compute the kernel estimation
     const double lam_i = t_lam[i];
     for (size_t j = 0; j < max_iter; ++j) {
-      x = (lam_i - t_lam[j]) * inv_lam_h[j];
-      abs_x = fabs(x);
-      x2 = SQUARE(x);
+      const double x = (lam_i - t_lam[j]) * inv_lam_h[j];
+      const double abs_x = fabs(x);
+      const double x2 = SQUARE(x);
 
-      // hfi
-      if (fabs(abs_x - SQRT5) < eps) {
-        hfi_part = (-3.0 / 10.0 / M_PI) * x;
-      } else if (abs_x > 5.0) {
-        x4 = SQUARE(x2);
-        hfi_part = (-1.0 / (M_PI * x)) * (1.0 + (1.0 / x2) + 15.0 / (7.0 * x4));
+      if (abs_x > 5.0) {
+        const double inv_x2 = 1 / x2;
+        const double inv_x4 = SQUARE(inv_x2);
+        hfi_part = ((-1.0 / M_PI) / x) * (1.0 + inv_x2 + (15.0 / 7.0) * inv_x4);
       } else {
-        log_term = log(fabs((SQRT5 - x) / (SQRT5 + x)));
-        linear_term = (-3.0 / 10.0 / M_PI) * x;
-        hfi_part = linear_term + (c1 / M_PI) * (1 - x2 / 5.0) * log_term;
+        const double linear_term = c_linear * x;
+        if (fabs(abs_x - SQRT5) > eps) {
+          log_term = c2 * (1 - (x2 / 5.0)) * log(fabs((SQRT5 - x) / (SQRT5 + x)));
+        } else {
+          log_term = 0.0;
+        }
+        hfi_part = linear_term + log_term;
       }
       hfi += hfi_part * inv_lam_h[j];
 
       // fi
-      fi += c1 * relu(1 - SQUARE(x) / 5) * inv_lam_h[j];
+      fi += c1 * relu(1.0 - SQUARE(x) / 5) * inv_lam_h[j];
     }
 
     // Convert sums to means
@@ -156,12 +158,12 @@ void C_LWAnalytical(
     hfi /= max_iter;
 
     if (p <= n) {
-      denom_p1 = M_PI * ratio * fi * t_lam[i];
-      denom_p2 = 1 - ratio - M_PI * ratio * hfi * t_lam[i];
+      const double denom_p1 = M_PI * ratio * fi * t_lam[i];
+      const double denom_p2 = 1.0 - ratio - M_PI * ratio * hfi * t_lam[i];
       t_lam_star[i] = t_lam[i] / (SQUARE(denom_p1) + SQUARE(denom_p2));
     } else {
-      denom_p1 = M_PI * M_PI * SQUARE(t_lam[i]);
-      denom_p2 = SQUARE(fi) + SQUARE(hfi);
+      const double denom_p1 = M_PI * M_PI * SQUARE(t_lam[i]);
+      const double denom_p2 = SQUARE(fi) + SQUARE(hfi);
       t_lam_star[i] = t_lam[i] / (denom_p1 * denom_p2);
     }
   }
