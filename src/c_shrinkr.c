@@ -19,7 +19,7 @@
 
 // Utilities functions
 
-double relu(double x) {
+inline double relu(double x) {
   return x > 0.0 ? x : 0.0;
 }
 
@@ -83,7 +83,7 @@ void C_OAS(
 
   // Add on the diagonal
   double add_value = shrinkage * mu;
-for (size_t i = 0; i < p; ++i) {
+  for (size_t i = 0; i < p; ++i) {
     sample_cov_star[i*p + i] += add_value;
   }
 
@@ -109,8 +109,13 @@ void C_LWAnalytical(
   const double * const t_lam = lam + shift;
   double * const t_lam_star = lam_star + shift;
 
+  double* inv_lam_h = malloc(max_iter * sizeof(double));
+  for (size_t i = 0; i < max_iter; ++i) {
+      inv_lam_h[i] = 1.0 / (t_lam[i] * h);
+  }
+
   // Handle main part
-  #pragma omp parallel for schedule(dynamic) if(max_iter >= PARALLEL_THRESHOLD)
+  #pragma omp parallel for schedule(guided) if(max_iter >= PARALLEL_THRESHOLD)
   for (size_t i = 0; i < max_iter; ++i) {
 
     // Accumulators
@@ -123,26 +128,27 @@ void C_LWAnalytical(
     double denom_p1, denom_p2;
 
     // Compute the kernel estimation
+    const double lam_i = t_lam[i];
     for (size_t j = 0; j < max_iter; ++j) {
-      x = (t_lam[i] - t_lam[j]) / (t_lam[j] * h);
+      x = (lam_i - t_lam[j]) * inv_lam_h[j];
       abs_x = fabs(x);
       x2 = SQUARE(x);
-      x4 = SQUARE(x2);
 
       // hfi
       if (fabs(abs_x - SQRT5) < eps) {
         hfi_part = (-3.0 / 10.0 / M_PI) * x;
       } else if (abs_x > 5.0) {
+        x4 = SQUARE(x2);
         hfi_part = (-1.0 / (M_PI * x)) * (1.0 + (1.0 / x2) + 15.0 / (7.0 * x4));
       } else {
         log_term = log(fabs((SQRT5 - x) / (SQRT5 + x)));
         linear_term = (-3.0 / 10.0 / M_PI) * x;
         hfi_part = linear_term + (c1 / M_PI) * (1 - x2 / 5.0) * log_term;
       }
-      hfi += hfi_part / (h * t_lam[j]);
+      hfi += hfi_part * inv_lam_h[j];
 
       // fi
-      fi += c1 * relu(1 - SQUARE(x) / 5) / (t_lam[j] * h);
+      fi += c1 * relu(1 - SQUARE(x) / 5) * inv_lam_h[j];
     }
 
     // Convert sums to means
