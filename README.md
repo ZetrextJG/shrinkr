@@ -1,7 +1,5 @@
 # Shrinkr - Covariance matrix shrinkage and LDA
 
----
-
 Shrinkr is a Python package which implements common covariance
 matrix shrinkage methods written in C and exposes them via a Python interface.
 
@@ -54,7 +52,11 @@ uv run pytest -m prop
 Property based test are designed to check the functionality of the code on a wide range of inputs
 and are expected to run before releases.
 
+### Benchmarking
+
+Benchmarking tools can be found in `./.devel/bench`.
 
 ### Styling
+
 Styling is handled entirely with *ruff* and enforced on every commit by *pre-commit*.
 
