@@ -44,11 +44,12 @@ double trace(const double * const matrix, size_t p) {
 double traceS2divp2(const double * const matrix, size_t p) {
   // Computes tr(S @ S.T) / (p^2) for a symmetric matrix S
   double acc = 0;
-  size_t max_iter = SQUARE(p);
+  const size_t max_iter = SQUARE(p);
   #pragma omp parallel for reduction(+:acc) if(max_iter >= PARALLEL_THRESHOLD)
   for (size_t i = 0; i < max_iter ; ++i) {
-    acc += SQUARE(matrix[i]) / max_iter;
+    acc += SQUARE(matrix[i]);
   }
+  acc /= max_iter;
   return acc;
 }
 
@@ -68,22 +69,23 @@ void C_OAS(
 ) {
   size_t p2 = SQUARE(p);
 
-  // Init the sample_cov_star matrix as sample_cov
-  memcpy(sample_cov_star, sample_cov, p2 * sizeof(double));
+  const double alpha = traceS2divp2(sample_cov, p);
+  const double mu = trace(sample_cov, p) / p;
+  const double mu_squared = SQUARE(mu);
 
-  double alpha = traceS2divp2(sample_cov, p);
-  double mu = trace(sample_cov, p) / p;
-  double mu_squared = SQUARE(mu);
-
-  double num = alpha + mu_squared;
-  double denom = (n + 1) * (alpha - mu_squared / p);
-  double shrinkage = denom < DOUBLE_EPS ? 1.0 : clip(num / denom, 0, 1);
+  const double num = alpha + mu_squared;
+  const double denom = (n + 1) * (alpha - mu_squared / p);
+  const double shrinkage = denom < DOUBLE_EPS ? 1.0 : clip(num / denom, 0, 1);
 
   // Shrink the cov
-  scalar_multiply(sample_cov_star, SQUARE(p), (1.0 - shrinkage));
+  const double scale = 1.0 - shrinkage;
+  #pragma omp parallel for if(p2 >= PARALLEL_THRESHOLD)
+  for (size_t i = 0; i < p2; ++i) {
+    sample_cov_star[i] = sample_cov[i] * scale;
+  }
 
   // Add on the diagonal
-  double add_value = shrinkage * mu;
+  const double add_value = shrinkage * mu;
   for (size_t i = 0; i < p; ++i) {
     sample_cov_star[i*p + i] += add_value;
   }
