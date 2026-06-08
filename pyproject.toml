@@ -24,6 +24,7 @@ dev = [
     "isort>=8.0.1",
     "pre-commit>=4.6.0",
     "pytest>=9.0.3",
+    "pytest-benchmark>=5.2.3",
     "ruff>=0.15.14",
     "setuptools>=82.0.1",
     "ty>=0.0.39",
