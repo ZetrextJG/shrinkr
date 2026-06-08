@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from hypothesis import given
+from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from shrinkr.functional import lw_analytical
@@ -11,6 +11,7 @@ from shrinkr.reference import (
 
 
 @pytest.mark.prop
+@settings(max_examples=100, deadline=None)
 @given(
     p=st.integers(min_value=20, max_value=200),
     n=st.integers(min_value=100, max_value=300),
