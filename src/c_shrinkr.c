@@ -5,7 +5,7 @@
 #include "c_shrinkr.h"
 #define SQRT5 2.23606797749979
 #define PHI   0.61803398874985
-#define PARALLEL_THRESHOLD_LWA 40
+#define PARALLEL_THRESHOLD_LWA 100
 #define PARALLEL_THRESHOLD 200
 #define DOUBLE_EPS 1e-12
 #define SQUARE(x) ((x) * (x))
@@ -238,12 +238,13 @@ void C_LWLinear(
   // Compute delta_ from the cov
   // and scale the cov
   double delta_ = 0.0;
+  const double inv_n = 1.0 / n;
   #pragma omp parallel for reduction(+:delta_) if(p >= PARALLEL_THRESHOLD)
   for (size_t pi = 0; pi < p; ++pi) {
     double delta_part = 0.0;
     for (size_t pj = 0; pj < p; ++pj) {
       delta_part += SQUARE(sample_cov_star[pi*p + pj]);
-      sample_cov_star[pi*p + pj] /= n;
+      sample_cov_star[pi*p + pj] *= inv_n;
     }
     delta_ += delta_part;
   }

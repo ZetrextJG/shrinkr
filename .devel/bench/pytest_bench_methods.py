@@ -7,55 +7,35 @@ from shrinkr.reference import ref_lw_analytical, ref_lw_linear, ref_oas
 
 # Define test dimensions
 TEST_CASES = [
-    (50, 60, "Small (p < n)"),
-    (70, 60, "Small (p > n)"),
-    (180, 300, "Medium (p > n)"),
-    (220, 300, "Medium (p > n)"),
-    (500, 600, "Large (p < n)"),
-    (700, 600, "Large (p > n)"),
+    (50, 60),
+    (70, 60),
+    (180, 300),
+    (220, 300),
+    (500, 600),
+    (700, 600),
 ]
 
-# --- 1. Ledoit-Wolf Analytical ---
 
-
-@pytest.mark.parametrize("p, n, desc", TEST_CASES)
-@pytest.mark.parametrize("impl_name, func", [("ref", ref_lw_analytical), ("new", lw_analytical)])
-def test_lw_analytical(benchmark, p, n, desc, impl_name, func):
-    # Setup Data (this executes outside the timing loop)
+@pytest.mark.parametrize("p, n", TEST_CASES)
+@pytest.mark.parametrize("func", [ref_lw_analytical, lw_analytical])
+def test_lw_analytical(benchmark, p, n, func):
     _, sc, _ = get_large_sample_cov(p=p, n=n, seed=42)
     lam, _ = np.linalg.eigh(sc)
-
-    # Group tests in terminal output to easily compare "ref" vs "new"
-    benchmark.group = f"LW_Analytical | {desc} (p={p}, n={n})"
-
-    # Run the benchmark
+    benchmark.group = f"LW_Analytical | (p={p}, n={n})"
     benchmark(func, lam, n)
 
 
-# --- 2. Ledoit-Wolf Linear ---
-
-
-@pytest.mark.parametrize("p, n, desc", TEST_CASES)
-@pytest.mark.parametrize("impl_name, func", [("ref", ref_lw_linear), ("new", lw_linear)])
-def test_lw_linear(benchmark, p, n, desc, impl_name, func):
-    # Setup Data
+@pytest.mark.parametrize("p, n", TEST_CASES)
+@pytest.mark.parametrize("func", [ref_lw_linear, lw_linear])
+def test_lw_linear(benchmark, p, n, func):
     X, _, _ = get_large_sample_cov(p=p, n=n, seed=42)
-
-    benchmark.group = f"LW_Linear | {desc} (p={p}, n={n})"
-
-    # kwargs can be passed directly into the benchmark callable
+    benchmark.group = f"LW_Linear | (p={p}, n={n})"
     benchmark(func, X, assume_centered=False)
 
 
-# --- 3. Oracle Approximating Shrinkage (OAS) ---
-
-
-@pytest.mark.parametrize("p, n, desc", TEST_CASES)
-@pytest.mark.parametrize("impl_name, func", [("ref", ref_oas), ("new", oas)])
-def test_oas(benchmark, p, n, desc, impl_name, func):
-    # Setup Data
+@pytest.mark.parametrize("p, n", TEST_CASES)
+@pytest.mark.parametrize("func", [ref_oas, oas])
+def test_oas(benchmark, p, n, func):
     _, sc, _ = get_large_sample_cov(p=p, n=n, seed=42)
-
-    benchmark.group = f"OAS | {desc} (p={p}, n={n})"
-
+    benchmark.group = f"OAS | (p={p}, n={n})"
     benchmark(func, sc, n, p)
