@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from shrinkr.functional import deal, deal_objective, lw_analytical, lw_linear, oas
 from shrinkr.monte_carlo import get_large_sample_cov
@@ -11,6 +12,7 @@ from shrinkr.reference import (
 )
 
 
+@pytest.mark.unit
 def test_lw_linear():
     p = 50
     n = 60
@@ -22,6 +24,7 @@ def test_lw_linear():
     assert np.allclose(ref, value)
 
 
+@pytest.mark.unit
 def test_lw_analytical_p_less_n():
     p = 50
     n = 60
@@ -34,6 +37,7 @@ def test_lw_analytical_p_less_n():
     assert np.allclose(ref, value)
 
 
+@pytest.mark.unit
 def test_lw_analytical_p_greater_n():
     p = 70
     n = 60
@@ -46,6 +50,7 @@ def test_lw_analytical_p_greater_n():
     assert np.allclose(ref, value)
 
 
+@pytest.mark.unit
 def test_oas():
     p = 70
     n = 30
@@ -61,6 +66,7 @@ def test_oas():
     assert np.allclose(ref, value)
 
 
+@pytest.mark.unit
 def test_deal():
     p = 50
     n = 60

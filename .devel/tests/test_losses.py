@@ -1,8 +1,10 @@
 import numpy as np
+import pytest
 
 from shrinkr.functional import loss_fr, mv_opt_cov, prial
 
 
+@pytest.mark.unit
 def test_fr_loss():
     np.random.seed(42)
     mat = np.random.rand(16)
@@ -18,6 +20,7 @@ def test_fr_loss():
     assert np.allclose(loss, 1.0)
 
 
+@pytest.mark.unit
 def test_prial():
     rng = np.random.default_rng(42)
     mean = np.array([0.0, 1.0, 2.0])

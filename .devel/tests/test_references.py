@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from shrinkr.functional import loss_fm, prial
 from shrinkr.monte_carlo import get_large_sample_cov, get_small_sample_cov
@@ -11,12 +12,14 @@ from shrinkr.reference import (
 from shrinkr.reference.deal import ref_deal
 
 
+@pytest.mark.unit
 def test_lw_linear_example():
     X, _, real_cov = get_small_sample_cov()
     _, shrinkage_coefficient = ref_lw_linear(X)
     assert np.allclose(shrinkage_coefficient, 0.23025, atol=1e-4)
 
 
+@pytest.mark.unit
 def test_lw_analytical():
     p = 50
     n = 60
@@ -40,6 +43,7 @@ def test_lw_analytical():
     assert prial1 >= prial2 - 1e-8
 
 
+@pytest.mark.unit
 def test_deal():
     p = 50
     n = 60
@@ -63,6 +67,7 @@ def test_deal():
     assert 0 <= fm1 <= fm0
 
 
+@pytest.mark.unit
 def test_oas():
     X, sample_cov, real_cov = get_small_sample_cov()
     n = X.shape[0]

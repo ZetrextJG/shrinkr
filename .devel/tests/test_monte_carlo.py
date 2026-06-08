@@ -1,6 +1,9 @@
+import pytest
+
 from shrinkr.monte_carlo import get_small_sample_cov
 
 
+@pytest.mark.unit
 def test_sample_generation():
     n = 100
     X, sc, rc = get_small_sample_cov(n=n)
