@@ -225,11 +225,11 @@ void C_LWLinear(
   for (size_t pi = 0; pi < p; ++pi) {
       double beta_part = 0.0;
       for (size_t k = 0; k < n; ++k) {
-          double data_ik = data[k*p + pi];
-          double x2_ik = data2[k*p + pi];
+          const double data_ik = data[k*p + pi];
+          const double data2_ik = data2[k*p + pi];
           for (size_t pj = 0; pj < p; ++pj) {
               sample_cov_star[pi*p + pj] += data_ik * data[k*p + pj];
-              beta_part += x2_ik * data2[k*p + pj];
+              beta_part += data2_ik * data2[k*p + pj];
           }
       }
       beta_ += beta_part;
