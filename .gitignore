@@ -19,3 +19,6 @@ uv.lock
 # Caches
 .pytest_cache
 .ruff_cache
+
+# Bench data
+.devel/bench/data/*.bin
