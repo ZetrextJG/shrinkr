@@ -61,7 +61,7 @@ void scalar_multiply(double * const data, size_t n, double scale) {
 }
 
 // Main implementation
-void C_OAS(
+double C_OAS(
     const double * const sample_cov, // Sample covariance
     double * const sample_cov_star, // Shrunk covariance
     size_t n, // Number of samples used
@@ -90,7 +90,7 @@ void C_OAS(
     sample_cov_star[i*p + i] += add_value;
   }
 
-  return ;
+  return shrinkage;
 }
 
 
@@ -200,7 +200,7 @@ void C_LWAnalytical(
   return ;
 }
 
-void C_LWLinear(
+double C_LWLinear(
     const double * const data, // Data n x p (c contiguous)
     double * const sample_cov_star, // Shrunk covariance buffer
     size_t n, // Number of samples used
@@ -270,7 +270,7 @@ void C_LWLinear(
     sample_cov_star[i*p + i] += add_value;
   }
 
-  return ;
+  return shrinkage;
 }
 
 

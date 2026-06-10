@@ -2,7 +2,10 @@
 #include "c_shrinkr.h"
 #include "floatobject.h"
 #include "methodobject.h"
+#include "modsupport.h"
 #include "pyerrors.h"
+#include "pytypedefs.h"
+#include "tupleobject.h"
 
 // PyArray_* functions:
 #include <numpy/arrayobject.h>
@@ -119,10 +122,11 @@ static PyObject* py_oas(PyObject* self, PyObject* args) {
   double * sample_cov_star = PyArray_DATA(sample_cov_star_pyarr);
 
   // Execute C code
-  C_OAS(sample_cov, sample_cov_star, n, p);
+  double shrinkage = C_OAS(sample_cov, sample_cov_star, n, p);
 
-  // Return object
-  return sample_cov_star_obj;
+  // Output tuple
+  PyObject * output = PyTuple_Pack(2, sample_cov_star_obj, PyFloat_FromDouble(shrinkage));
+  return output;
 }
 
 
@@ -153,10 +157,11 @@ static PyObject* py_lw_linear(PyObject* self, PyObject* args) {
   double * sample_cov_star = PyArray_DATA(sample_cov_star_pyarr);
 
   // Execute C code
-  C_LWLinear(data, sample_cov_star, n, p);
+  double shrinkage = C_LWLinear(data, sample_cov_star, n, p);
 
-  // Return object
-  return sample_cov_star_obj;
+  // Output tuple
+  PyObject * output = PyTuple_Pack(2, sample_cov_star_obj, PyFloat_FromDouble(shrinkage));
+  return output;
 }
 
 static PyObject* py_deal_objective(PyObject* self, PyObject* args) {

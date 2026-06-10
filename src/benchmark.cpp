@@ -142,7 +142,6 @@ static void BM_DEAL(benchmark::State &state) {
 }
 
 
-
 BENCHMARK(BM_OAS);
 BENCHMARK(BM_LWAnalytical);
 BENCHMARK(BM_LWLinear);

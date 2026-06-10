@@ -3,7 +3,7 @@
 
 #include "stddef.h"
 
-void C_OAS(
+double C_OAS(
     const double * const sample_cov, // Sample covariance
     double * const sample_cov_star, // Shrunk covariance buffer
     size_t n, // Number of samples used
@@ -18,7 +18,7 @@ void C_LWAnalytical(
     double eps // Epsilon value
 );
 
-void C_LWLinear(
+double C_LWLinear(
     const double * const data, // Data n x p
     double * const sample_cov_star, // Shrunk covariance buffer
     size_t n, // Number of samples used

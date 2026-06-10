@@ -20,7 +20,7 @@ def test_lw_linear():
     X, _, _ = get_large_sample_cov(p=p, n=n, seed=42)
 
     ref, _ = ref_lw_linear(X, assume_centered=True)
-    value = lw_linear(X, assume_centered=True)
+    value, _ = lw_linear(X, assume_centered=True)
     assert np.allclose(ref, value)
 
 
@@ -58,7 +58,7 @@ def test_oas():
     _, sc, _ = get_large_sample_cov(p=p, n=n, seed=42)
 
     ref, _ = ref_oas(sc, n, p)
-    value = oas(sc, n, p)
+    value, _ = oas(sc, n, p)
     ref_diag = np.diag(ref)
     value_diag = np.diag(value)
 

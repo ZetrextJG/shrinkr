@@ -3,7 +3,7 @@ import numpy as np
 from shrinkr._native import py_oas
 
 
-def oas(sample_cov: np.ndarray, n: int, p: int | None = None) -> np.ndarray:
+def oas(sample_cov: np.ndarray, n: int, p: int | None = None) -> tuple[np.ndarray, float]:
     """Estimate covariance with the Oracle Approximating Shrinkage algorithm.
 
     The formulation is based on [1]_.
@@ -23,6 +23,5 @@ def oas(sample_cov: np.ndarray, n: int, p: int | None = None) -> np.ndarray:
     sample_cov: np.ndarray = sample_cov.astype(np.float64)
     sample_cov = np.ascontiguousarray(sample_cov)
 
-    sample_cov_star = py_oas(sample_cov, n, p)
-
-    return sample_cov_star
+    sample_cov_star, shrinakge = py_oas(sample_cov, n, p)
+    return sample_cov_star, shrinakge
