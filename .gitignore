@@ -16,6 +16,8 @@ wheels/
 # UV lock
 uv.lock
 
+.clangd
+
 # Caches
 .pytest_cache
 .ruff_cache
