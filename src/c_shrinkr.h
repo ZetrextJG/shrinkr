@@ -25,6 +25,14 @@ double C_LWLinear(
     size_t p // Dimensions of both x and y
 );
 
+double C_LWLinearFast(
+    const double * const data, // Data n x p
+    const double * const sample_cov, // Sample covariance
+    double * const sample_cov_star, // Shrunk covariance buffer
+    size_t n, // Number of samples used
+    size_t p // Dimensions of both x and y
+);
+
 double C_DEALObjective(
     const double * const base_evals,
     const double * const surr_evals,

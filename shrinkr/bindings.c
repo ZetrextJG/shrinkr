@@ -164,6 +164,44 @@ static PyObject* py_lw_linear(PyObject* self, PyObject* args) {
   return output;
 }
 
+static PyObject* py_lw_linear_fast(PyObject* self, PyObject* args) {
+  PyObject *data_obj;
+  PyObject *sample_cov_obj;
+  Py_ssize_t py_n, py_p;
+  size_t n, p;
+
+  // Extract args
+  if (!PyArg_ParseTuple(
+    args, "OOnn",
+    &data_obj, &sample_cov_obj, &py_n, &py_p
+  )) return NULL;
+
+  // Checks for data
+  const double* const data = get_numpy_data_safe(data_obj, "data", TRUE, FALSE);
+  if (!data) return NULL;
+
+  const double* const sample_cov = get_numpy_data_safe(sample_cov_obj, "sample_cov", TRUE, FALSE);
+  if (!sample_cov) return NULL;
+
+  // Checks for positive numbers
+  PARSE_POSITIVE_SIZE_T(py_n, n, "n");
+  PARSE_POSITIVE_SIZE_T(py_p, p, "p");
+
+  // Create output object
+  npy_intp dims[2] = {p, p};
+  PyObject * const sample_cov_star_obj = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
+  if (!sample_cov_star_obj) return NULL;
+  PyArrayObject* sample_cov_star_pyarr = (PyArrayObject*) sample_cov_star_obj;
+  double * sample_cov_star = PyArray_DATA(sample_cov_star_pyarr);
+
+  // Execute C code
+  double shrinkage = C_LWLinearFast(data, sample_cov, sample_cov_star, n, p);
+
+  // Output tuple
+  PyObject * output = PyTuple_Pack(2, sample_cov_star_obj, PyFloat_FromDouble(shrinkage));
+  return output;
+}
+
 static PyObject* py_deal_objective(PyObject* self, PyObject* args) {
   PyObject *base_evals_obj;
   PyObject *surr_evals_obj;
@@ -272,6 +310,7 @@ static PyMethodDef Methods[] = {
     {"py_deal_objective", py_deal_objective, METH_VARARGS, "Objective of (DEAL) Deterministic Equivalents Adjusted LDA"},
     {"py_lw_analytical", py_lw_analytical, METH_VARARGS, "Performs LW Analytical Shrinkage"},
     {"py_lw_linear", py_lw_linear, METH_VARARGS, "Performs LW Linear Shrinkage"},
+    {"py_lw_linear_fast", py_lw_linear_fast, METH_VARARGS, "Performs LW Linear Shrinkage (Fast)"},
     {"py_oas", py_oas, METH_VARARGS, "Performs (OAS) Oracle Approximating Shrinkage"},
     {NULL, NULL, 0, NULL}
 };

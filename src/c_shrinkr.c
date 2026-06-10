@@ -7,6 +7,7 @@
 #define PHI   0.61803398874985
 #define PARALLEL_THRESHOLD_LWA 100
 #define PARALLEL_THRESHOLD 200
+#define PARALLEL_THRESHOLD_TRACE 40
 #define DOUBLE_EPS 1e-12
 #define SQUARE(x) ((x) * (x))
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
@@ -33,25 +34,53 @@ double clip(double x, double min, double max) {
   return x;
 }
 
-double trace(const double * const matrix, size_t p) {
+// Computes tr(S) for a square matrix S
+double trace(const double * const S, size_t p) {
   double acc = 0;
   for (size_t i = 0; i < p; ++i) {
-    acc += matrix[i*p + i];
+    acc += S[i*p + i];
   }
   return acc;
 }
 
-double traceS2divp2(const double * const matrix, size_t p) {
-  // Computes tr(S @ S.T) / (p^2) for a symmetric matrix S
+// Computes tr(S @ S.T) for a symmetric matrix S
+double traceS2(const double * const S, size_t p) {
   double acc = 0;
   const size_t max_iter = SQUARE(p);
-  #pragma omp parallel for reduction(+:acc) if(max_iter >= PARALLEL_THRESHOLD)
+  #pragma omp parallel for reduction(+:acc) if(p >= PARALLEL_THRESHOLD_TRACE)
   for (size_t i = 0; i < max_iter ; ++i) {
-    acc += SQUARE(matrix[i]);
+    acc += SQUARE(S[i]);
   }
-  acc /= max_iter;
   return acc;
 }
+
+
+// Computes tr(A @ A.T), where A is the diagonal matrix of S
+double traceDiagS2(const double * const S, size_t p) {
+  double acc = 0;
+  for (size_t i = 0; i < p ; ++i) {
+    acc += SQUARE(S[i*p + i]);
+  }
+  return acc;
+}
+
+
+// Compute the sum of the || x_k ||_2^4 for x_k being the k-th sample (row)
+double sumNorm2p4(const double * const data, size_t n, size_t p) {
+  double sum_norms_4 = 0.0;
+  #pragma omp parallel for reduction(+:sum_norms_4) if(n >= PARALLEL_THRESHOLD)
+  for (size_t ni = 0; ni < n; ++ni) {
+    double norm_sq = 0.0;
+    for (size_t pi = 0; pi < p; ++pi) {
+      const double val = data[ni*p + pi];
+      norm_sq += SQUARE(val);
+    }
+    sum_norms_4 += SQUARE(norm_sq);
+  }
+
+  return sum_norms_4;
+}
+
 
 void scalar_multiply(double * const data, size_t n, double scale) {
   #pragma omp parallel for if(n >= PARALLEL_THRESHOLD)
@@ -60,7 +89,17 @@ void scalar_multiply(double * const data, size_t n, double scale) {
   }
 }
 
-// Main implementation
+void scalar_multiply_copy(const double * const data, double * const output, size_t n, double scale) {
+  #pragma omp parallel for if(n >= PARALLEL_THRESHOLD)
+  for (size_t i = 0; i < n ; ++i) {
+    output[i] = scale * data[i];
+  }
+}
+
+
+// Main implementation ----------------------------------------------------------------------------
+
+
 double C_OAS(
     const double * const sample_cov, // Sample covariance
     double * const sample_cov_star, // Shrunk covariance
@@ -69,7 +108,7 @@ double C_OAS(
 ) {
   size_t p2 = SQUARE(p);
 
-  const double alpha = traceS2divp2(sample_cov, p);
+  const double alpha = traceS2(sample_cov, p) / p2;
   const double mu = trace(sample_cov, p) / p;
   const double mu_squared = SQUARE(mu);
 
@@ -263,6 +302,43 @@ double C_LWLinear(
 
   // Shrink the cov
   scalar_multiply(sample_cov_star, p2, (1.0 - shrinkage));
+
+  // Add on the diagonal
+  double add_value = shrinkage * mu;
+  for (size_t i = 0; i < p; ++i) {
+    sample_cov_star[i*p + i] += add_value;
+  }
+
+  return shrinkage;
+}
+
+
+double C_LWLinearFast(
+    const double * const data, // Data n x p (c contiguous)
+    const double * const sample_cov, // Sample covariance (p x p) (c contiguous)
+    double * const sample_cov_star, // Shrunk covariance buffer
+    size_t n, // Number of samples used
+    size_t p // Number of features
+) {
+  size_t p2 = SQUARE(p);
+  size_t n2 = SQUARE(n);
+
+  // Compute mu
+  double cov_trace = trace(sample_cov, p);
+  double mu = cov_trace / p;
+
+  // Compute delta and beta
+  double delta_ = traceS2(sample_cov, p);
+  double beta_ = sumNorm2p4(data, n, p);
+  double beta = 1.0 / (p * n) * (beta_ / n - delta_);
+  double delta = delta_ - 2.0 * mu * cov_trace + (SQUARE(mu) * p);
+  delta /= p;
+  beta = MIN(beta, delta);
+
+  double shrinkage = beta < DOUBLE_EPS ? 1.0 : clip(beta / delta, 0, 1);
+
+  // Shrink the cov
+  scalar_multiply_copy(sample_cov, sample_cov_star, p2, (1.0 - shrinkage));
 
   // Add on the diagonal
   double add_value = shrinkage * mu;

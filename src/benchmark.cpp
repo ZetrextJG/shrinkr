@@ -107,6 +107,40 @@ static void BM_LWLinear(benchmark::State &state) {
   free(sample_cov_star);
 }
 
+static void BM_LWLinearFast(benchmark::State &state) {
+  double *data = (double *) malloc(N * P * sizeof(double));
+  double *sample_cov = (double *) malloc(P * P * sizeof(double));
+  double *sample_cov_star = (double *) malloc(P * P * sizeof(double));
+
+  int rescode;
+
+  rescode = read_benchmark_file("data", N, P, N * P, data);
+  if (rescode) {
+    state.SkipWithError("Error reading data file. Check file size.");
+    free(data);
+    free(sample_cov);
+    free(sample_cov_star);
+    return;
+  }
+
+  rescode = read_benchmark_file("sample_cov", N, P, P * P, sample_cov);
+  if (rescode) {
+    state.SkipWithError("Error reading sample_cov file. Check file size.");
+    free(data);
+    free(sample_cov);
+    free(sample_cov_star);
+    return;
+  }
+
+  for (auto _ : state) {
+    C_LWLinearFast(data, sample_cov, sample_cov_star, N, P);
+    benchmark::ClobberMemory();
+  }
+
+  free(data);
+  free(sample_cov_star);
+}
+
 static void BM_DEAL(benchmark::State &state) {
   double *base_evals = (double *) malloc(P * sizeof(double));
 
@@ -126,7 +160,6 @@ static void BM_DEAL(benchmark::State &state) {
   // Genearate random direction
   fill_random_normal(z_vec, P);
 
-
   double gamma_min = 1e-4;
   double gamma_max = 1e4;
   double start_value = 1;
@@ -145,6 +178,7 @@ static void BM_DEAL(benchmark::State &state) {
 BENCHMARK(BM_OAS);
 BENCHMARK(BM_LWAnalytical);
 BENCHMARK(BM_LWLinear);
+BENCHMARK(BM_LWLinearFast);
 BENCHMARK(BM_DEAL);
 
 BENCHMARK_MAIN();

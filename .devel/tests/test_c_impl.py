@@ -19,8 +19,9 @@ def test_lw_linear():
 
     X, _, _ = get_large_sample_cov(p=p, n=n, seed=42)
 
-    ref, _ = ref_lw_linear(X, assume_centered=True)
-    value, _ = lw_linear(X, assume_centered=True)
+    ref, ref_s = ref_lw_linear(X, assume_centered=True)
+    value, value_s = lw_linear(X, assume_centered=True)
+    assert np.allclose(ref_s, value_s)
     assert np.allclose(ref, value)
 
 
