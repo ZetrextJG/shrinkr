@@ -9,7 +9,7 @@ REF_METHODS = [f"ref_{name}" for name in C_METHODS]
 METHODS = ["empirical"] + C_METHODS + REF_METHODS
 
 
-class EmpiricalCovairance(BaseEstimator):
+class CovarianceEstimator(BaseEstimator):
     def __init__(self, *, param=1, method: str):
         self.param = param
         self.is_fitted: bool = False
@@ -59,6 +59,9 @@ class EmpiricalCovairance(BaseEstimator):
             shrunk_evals = ref_lw_analytical(evals, n, 1e-8)
             self.shrunk_cov = U @ np.diag(shrunk_evals) @ (U.T)
             return None
+
+        raise ValueError(f"Method not found {self.method}")
+        return None
 
     def predict(self, X):
         if self.is_fitted:
