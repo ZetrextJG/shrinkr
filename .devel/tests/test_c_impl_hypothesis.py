@@ -49,7 +49,7 @@ def test_lw_linear(p, n, seed):
     n=st.integers(min_value=100, max_value=300),
     seed=st.integers(min_value=0, max_value=2**32 - 1),
 )
-def test_lw_oas(p, n, seed):
+def test_oas(p, n, seed):
     _, sc, _ = get_large_sample_cov(p=p, n=n, seed=seed)
 
     ref, ref_s = ref_oas(sc, n)
