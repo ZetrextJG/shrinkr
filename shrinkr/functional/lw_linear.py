@@ -3,9 +3,7 @@ import numpy as np
 from shrinkr._native import py_lw_linear
 
 
-def lw_linear(
-    X: np.ndarray, assume_centered: bool = False, use_fast: bool = True
-) -> tuple[np.ndarray, float]:
+def lw_linear(X: np.ndarray, assume_centered: bool = False) -> tuple[np.ndarray, float]:
 
     # for only one feature, the result is the same whatever the shrinkage
     if len(X.shape) == 2 and X.shape[1] == 1:
