@@ -1,6 +1,6 @@
 import numpy as np
 
-from shrinkr._native import py_lw_linear, py_lw_linear_fast
+from shrinkr._native import py_lw_linear
 
 
 def lw_linear(
@@ -22,10 +22,7 @@ def lw_linear(
     if not assume_centered:
         X = X - X.mean(0)
 
-    if use_fast:
-        sample_cov = np.dot(X.T, X) / n
-        sample_cov_star, shrinkage = py_lw_linear_fast(X, sample_cov, n, p)
-    else:
-        sample_cov_star, shrinkage = py_lw_linear(X, n, p)
+    sample_cov = np.dot(X.T, X) / n
+    sample_cov_star, shrinkage = py_lw_linear(X, sample_cov, n, p)
 
     return sample_cov_star, shrinkage

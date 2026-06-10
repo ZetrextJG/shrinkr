@@ -86,28 +86,8 @@ static void BM_LWAnalytical(benchmark::State &state) {
   free(lam_star);
 }
 
+
 static void BM_LWLinear(benchmark::State &state) {
-  double *data = (double *) malloc(N * P * sizeof(double));
-  double *sample_cov_star = (double *) malloc(P * P * sizeof(double));
-
-  int rescode = read_benchmark_file("data", N, P, N * P, data);
-  if (rescode) {
-    state.SkipWithError("Error reading data file. Check file size.");
-    free(data);
-    free(sample_cov_star);
-    return;
-  }
-
-  for (auto _ : state) {
-    C_LWLinear(data, sample_cov_star, N, P);
-    benchmark::ClobberMemory();
-  }
-
-  free(data);
-  free(sample_cov_star);
-}
-
-static void BM_LWLinearFast(benchmark::State &state) {
   double *data = (double *) malloc(N * P * sizeof(double));
   double *sample_cov = (double *) malloc(P * P * sizeof(double));
   double *sample_cov_star = (double *) malloc(P * P * sizeof(double));
@@ -133,7 +113,7 @@ static void BM_LWLinearFast(benchmark::State &state) {
   }
 
   for (auto _ : state) {
-    C_LWLinearFast(data, sample_cov, sample_cov_star, N, P);
+    C_LWLinear(data, sample_cov, sample_cov_star, N, P);
     benchmark::ClobberMemory();
   }
 
@@ -178,7 +158,6 @@ static void BM_DEAL(benchmark::State &state) {
 BENCHMARK(BM_OAS);
 BENCHMARK(BM_LWAnalytical);
 BENCHMARK(BM_LWLinear);
-BENCHMARK(BM_LWLinearFast);
 BENCHMARK(BM_DEAL);
 
 BENCHMARK_MAIN();

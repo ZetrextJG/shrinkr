@@ -20,13 +20,6 @@ void C_LWAnalytical(
 
 double C_LWLinear(
     const double * const data, // Data n x p
-    double * const sample_cov_star, // Shrunk covariance buffer
-    size_t n, // Number of samples used
-    size_t p // Dimensions of both x and y
-);
-
-double C_LWLinearFast(
-    const double * const data, // Data n x p
     const double * const sample_cov, // Sample covariance
     double * const sample_cov_star, // Shrunk covariance buffer
     size_t n, // Number of samples used
