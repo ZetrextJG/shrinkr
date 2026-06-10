@@ -26,6 +26,7 @@ dev = [
     "pytest>=9.0.3",
     "pytest-benchmark>=5.2.3",
     "ruff>=0.15.14",
+    "scikit-learn>=1.9.0",
     "setuptools>=82.0.1",
     "ty>=0.0.39",
     "wheel>=0.47.0",
