@@ -2,8 +2,8 @@
 #include <cstdlib>
 #include <filesystem>
 #include <math.h>
-#define N 1000
 #define P 500
+#define N 1000
 
 extern "C" {
 #include "c_shrinkr.h"

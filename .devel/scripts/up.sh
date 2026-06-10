@@ -6,4 +6,6 @@
 uv sync --all-groups
 uv pip install -e .
 
+uv run ./.devel/bench/data/gen_data.py
+
 

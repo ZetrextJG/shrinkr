@@ -1,22 +1,13 @@
 import numpy as np
 import pytest
+from data.consts import BENCH_TEST_CASES
 
 from shrinkr.functional import lw_analytical, lw_linear, oas
 from shrinkr.monte_carlo import get_large_sample_cov
 from shrinkr.reference import ref_lw_analytical, ref_lw_linear, ref_oas
 
-# Define test dimensions
-TEST_CASES = [
-    (50, 60),
-    (70, 60),
-    (180, 300),
-    (220, 300),
-    (500, 600),
-    (700, 600),
-]
 
-
-@pytest.mark.parametrize("p, n", TEST_CASES)
+@pytest.mark.parametrize("p, n", BENCH_TEST_CASES)
 @pytest.mark.parametrize("func", [ref_lw_analytical, lw_analytical])
 def test_lw_analytical(benchmark, p, n, func):
     _, sc, _ = get_large_sample_cov(p=p, n=n, seed=42)
@@ -26,7 +17,7 @@ def test_lw_analytical(benchmark, p, n, func):
     benchmark(func, lam, n)
 
 
-@pytest.mark.parametrize("p, n", TEST_CASES)
+@pytest.mark.parametrize("p, n", BENCH_TEST_CASES)
 @pytest.mark.parametrize("func", [ref_lw_linear, lw_linear])
 def test_lw_linear(benchmark, p, n, func):
     X, _, _ = get_large_sample_cov(p=p, n=n, seed=42)
@@ -35,7 +26,7 @@ def test_lw_linear(benchmark, p, n, func):
     benchmark(func, X, assume_centered=False)
 
 
-@pytest.mark.parametrize("p, n", TEST_CASES)
+@pytest.mark.parametrize("p, n", BENCH_TEST_CASES)
 @pytest.mark.parametrize("func", [ref_oas, oas])
 def test_oas(benchmark, p, n, func):
     _, sc, _ = get_large_sample_cov(p=p, n=n, seed=42)
