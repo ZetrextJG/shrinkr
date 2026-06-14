@@ -8,7 +8,11 @@ Methods are implemented in C for performance and exposed through a clean Python 
 ## Installation
 
 Currently the package is only on GitHub.
-`pip install git+https://github.com/ZetrextJG/shrinkr`
+
+Install with:
+```sh
+pip install git+https://github.com/ZetrextJG/shrinkr
+```
 
 > PyPI release coming soon.
 
