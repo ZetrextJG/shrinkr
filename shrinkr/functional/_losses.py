@@ -155,3 +155,28 @@ def loss_fr(matrixA: np.ndarray, matrixB: np.ndarray) -> float:
     n, p = matrixB.shape
     delta = matrixA - matrixB
     return np.sum(delta.reshape(-1) ** 2) / p
+
+
+def accuracy(y: np.ndarray, y_pred: np.ndarray) -> float:
+    """Classification accuracy.
+
+    Parameters
+    ----------
+    y : np.ndarray
+        True class labels (1D integer array).
+    y_pred : np.ndarray
+        Predicted class labels (1D integer array).
+
+    Returns
+    -------
+    float
+        Fraction of correctly classified samples, in the range [0, 1].
+    """
+    if y.ndim != 1:
+        raise ValueError("y must be a 1D array")
+    if y_pred.ndim != 1:
+        raise ValueError("y_pred must be a 1D array")
+    if y.shape != y_pred.shape:
+        raise ValueError("y and y_pred must have the same shape")
+
+    return float(np.sum(y == y_pred) / y.shape[0])

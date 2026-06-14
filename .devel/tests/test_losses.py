@@ -1,8 +1,15 @@
 import numpy as np
 import pytest
 
-from shrinkr.functional import loss_fm, loss_fr, loss_mv, loss_prial, mv_opt_cov
+from shrinkr.functional import accuracy, loss_fm, loss_fr, loss_mv, loss_prial, mv_opt_cov
 from shrinkr.monte_carlo import get_large_sample_cov
+
+
+@pytest.mark.unit
+def test_accuracy():
+    y = np.random.randint(0, 2, 50)  # 0,1
+    assert np.allclose(accuracy(y, y), 1.0)
+    assert np.allclose(accuracy(y, 1 - y), 0.0)
 
 
 @pytest.mark.unit

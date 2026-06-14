@@ -1,7 +1,7 @@
 """Functional C implementation of shrinkages and more."""
 
 from ._deal import deal, deal_objective
-from ._losses import loss_fm, loss_fr, loss_mv, loss_prial, mv_opt_cov
+from ._losses import accuracy, loss_fm, loss_fr, loss_mv, loss_prial, mv_opt_cov
 from ._lw_analytical import lw_analytical
 from ._lw_linear import lw_linear
 from ._oas import oas
@@ -12,6 +12,7 @@ __all__ = [
     "oas",
     "deal",
     "deal_objective",
+    "accuracy",
     "loss_fr",
     "loss_fm",
     "loss_mv",
