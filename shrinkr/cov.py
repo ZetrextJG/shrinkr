@@ -26,6 +26,19 @@ class CovarianceEstimator(BaseEstimator):
     tol : float, optional
         Eigenvalue threshold passed to eigenvalue-based methods. Default is 1e-8.
 
+
+    See Also
+    --------
+    [`shrinkr.functional.lw_linear`][]
+        Ledoit-Wolf Linear Shrinkage
+
+    [`shrinkr.functional.lw_analytical`][]
+        Ledoit-Wolf Analytical Shrinkage
+
+    [`shrinkr.functional.oas`][]
+        Oracle Approximating Shrinkage
+
+
     Attributes
     ----------
     is_fitted_ : bool

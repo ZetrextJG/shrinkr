@@ -16,16 +16,25 @@ class LinearDiscriminantAnalysis(BaseEstimator):
 
     Fits a two class LDA model and classifies by the
     log-posterior ratio. The pooled covariance can be estimated with any
-    method supported by [`CovarianceEstimator`][shrinkr.cov.CovarianceEstimator]
+    method supported by [`CovarianceEstimator`][shrinkr.CovarianceEstimator]
     or specialized LDA shrinkage ``deal``.
 
     Parameters
     ----------
     method : str, optional
         Estimator used to shrink (compute) the pooled within-class covariance.
-        See [`shrinkr.cov.CovarianceEstimator`][] for allowed values.
+        See [`shrinkr.CovarianceEstimator`][] for allowed values.
         Additionally we allow ``deal`` and ``ref_deal``.
         Default is ``empirical``.
+
+    See Also
+    --------
+    [`shrinkr.CovarianceEstimator`][]
+        CovarianceEstimator class with non directional shrinkage methods
+
+    [`shrinkr.functional.lw_analytical`][]
+        Deterministic Equivalent Adjusted LDA (directional shrinakge)
+
 
     Attributes
     ----------
