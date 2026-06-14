@@ -1,4 +1,4 @@
-name: Python Run Unit Tests
+name: shrinkr for Python
 
 on:
   push:
