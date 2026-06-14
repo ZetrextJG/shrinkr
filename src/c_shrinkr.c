@@ -1,8 +1,11 @@
+#define _USE_MATH_DEFINES
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
 #include "c_shrinkr.h"
+
 #define SQRT5 2.23606797749979
 #define PHI   0.61803398874985
 #define PARALLEL_THRESHOLD_LWA 100
@@ -45,10 +48,11 @@ double trace(const double * const S, size_t p) {
 
 // Computes tr(S @ S.T) for a symmetric matrix S
 double traceS2(const double * const S, size_t p) {
+  size_t i;
   double acc = 0;
   const size_t max_iter = SQUARE(p);
   #pragma omp parallel for reduction(+:acc) if(p >= PARALLEL_THRESHOLD_TRACE)
-  for (size_t i = 0; i < max_iter ; ++i) {
+  for (i = 0; i < max_iter ; ++i) {
     acc += SQUARE(S[i]);
   }
   return acc;
@@ -68,8 +72,9 @@ double traceDiagS2(const double * const S, size_t p) {
 // Compute the sum of the || x_k ||_2^4 for x_k being the k-th sample (row)
 double sumNorm2p4(const double * const data, size_t n, size_t p) {
   double sum_norms_4 = 0.0;
+  size_t ni;
   #pragma omp parallel for reduction(+:sum_norms_4) if(n >= PARALLEL_THRESHOLD)
-  for (size_t ni = 0; ni < n; ++ni) {
+  for (ni = 0; ni < n; ++ni) {
     double norm_sq = 0.0;
     for (size_t pi = 0; pi < p; ++pi) {
       const double val = data[ni*p + pi];
@@ -83,15 +88,17 @@ double sumNorm2p4(const double * const data, size_t n, size_t p) {
 
 
 void scalar_multiply(double * const data, size_t n, double scale) {
+  size_t i;
   #pragma omp parallel for if(n >= PARALLEL_THRESHOLD)
-  for (size_t i = 0; i < n ; ++i) {
+  for (i = 0; i < n ; ++i) {
     data[i] = scale * data[i];
   }
 }
 
 void scalar_multiply_copy(const double * const data, double * const output, size_t n, double scale) {
+  size_t i;
   #pragma omp parallel for if(n >= PARALLEL_THRESHOLD)
-  for (size_t i = 0; i < n ; ++i) {
+  for (i = 0; i < n ; ++i) {
     output[i] = scale * data[i];
   }
 }
@@ -118,8 +125,9 @@ double C_OAS(
 
   // Shrink the cov
   const double scale = 1.0 - shrinkage;
+  size_t i;
   #pragma omp parallel for if(p2 >= PARALLEL_THRESHOLD)
-  for (size_t i = 0; i < p2; ++i) {
+  for (i = 0; i < p2; ++i) {
     sample_cov_star[i] = sample_cov[i] * scale;
   }
 
@@ -159,8 +167,9 @@ void C_LWAnalytical(
   }
 
   // Handle main part
+  size_t i;
   #pragma omp parallel for schedule(guided) if(max_iter >= PARALLEL_THRESHOLD_LWA)
-  for (size_t i = 0; i < max_iter; ++i) {
+  for (i = 0; i < max_iter; ++i) {
 
     // Accumulators
     double fi  = 0.0; // \tilde f_n(\lambda_i) - density
