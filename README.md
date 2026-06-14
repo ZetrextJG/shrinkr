@@ -10,7 +10,7 @@ matrix shrinkage methods written in C and exposes them via a Python interface.
 Currently the package is only on GitHub.
 `pip install git+https://github.com/ZetrextJG/shrinkr`
 
-> The PyPI coming soon.
+> PyPI release coming soon.
 
 
 ## Usage example
@@ -21,7 +21,7 @@ from shrinkr import LinearDiscriminantAnalysis as LDA
 from shrinkr.functional import accuracy
 from shrinkr.monte_carlo import get_guassian_lda_samples
 
-# Generate Guassian data for covariance estimation and LDA
+# Generate Gaussian data for covariance estimation and LDA
 X, y = get_guassian_lda_samples(p=20, n_per_class=200, seed=1)
 
 # Shrunk covariance estimation:
@@ -44,15 +44,14 @@ Documentation site is hosted on [GitHub Pages](https://jgrzywaczewski.com/shrink
 
 ## Structure
 
-All implemented methods are implemented functionally (`shrinkr.functional` module)
-have the reference implementations in Python (Numpy)
-which can be found in `shrinkr.reference` module.
+All methods are implemented functionally in the `shrinkr.functional` module,
+with reference Python/NumPy implementations in `shrinkr.reference`.
 
 
 ## Development
 
 The project is set up with `uv`:
-```
+```sh
 uv sync --dev
 ```
 
@@ -65,19 +64,17 @@ bindings in `./shrinkr/bindings.c` which are exposed via the
 
 All tests are in `./.devel/tests` and are handled with *pytest*.
 
-To run the unit test suite, run the following command in the terminal:
-```
+To run the unit test suite:
+```sh
 uv run pytest -m unit
 ```
-Unit tests are designed to take less then a second to run 
-and run on every commit to ensure that the code is working as expected.
+Unit tests are designed to run in under a second and execute on every commit.
 
-To run the property-based test suite, run the following command in the terminal:
-```
+To run the property-based test suite:
+```sh
 uv run pytest -m prop
 ```
-Property based test are designed to check the functionality of the code on a wide range of inputs
-and are expected to run before releases.
+Property-based tests cover a wide range of inputs and are expected to run before releases.
 
 ### Styling
 
@@ -95,5 +92,4 @@ Benchmarking tools can be found in `./.devel/bench`.
 Benchmarking results run on a Lenovo ThinkSystem SR665 with 2x AMD EPYC 7413 48 Core Processors and sufficient RAM. 
 The number of cores is restricted to 16. Numpy is installed with uv.
 
-...
 
