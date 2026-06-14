@@ -1,12 +1,21 @@
-site_name: shrinkr Docs
+site_name: shrinkr docs
 site_description: Documentation for the shrinkr package
-site_url: https://zetrextjg.github.io/shrinkr/ # Update this later if using GitHub Pages
+site_url: https://jgrzywaczewski.com/shrinkr/ # Update this later if using GitHub Pages
+repo_url: https://github.com/ZetrextJG/shrinkr
+repo_name: ZetrextJG/shrinkr
 
 theme:
   name: material
   features:
     - navigation.sections
     - navigation.top
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/ZetrextJG
+    - icon: fontawesome/solid/house
+      link: https://jgrzywaczewski.com
 
 plugins:
   - search
