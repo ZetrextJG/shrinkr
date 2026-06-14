@@ -1,5 +1,7 @@
 # Shrinkr - Covariance matrix shrinkage and LDA
 
+[![shrinkr for Python](https://github.com/ZetrextJG/shrinkr/actions/workflows/tests.yml/badge.svg)](https://github.com/ZetrextJG/shrinkr/actions/workflows/tests.yml)
+
 Shrinkr is a Python package which implements common covariance
 matrix shrinkage methods written in C and exposes them via a Python interface.
 
