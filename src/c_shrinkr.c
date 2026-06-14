@@ -1,3 +1,4 @@
+#include <stddef.h>
 #define _USE_MATH_DEFINES
 
 #include <stdio.h>
@@ -48,9 +49,9 @@ double trace(const double * const S, size_t p) {
 
 // Computes tr(S @ S.T) for a symmetric matrix S
 double traceS2(const double * const S, size_t p) {
-  size_t i;
   double acc = 0;
   const size_t max_iter = SQUARE(p);
+  ptrdiff_t i;
   #pragma omp parallel for reduction(+:acc) if(p >= PARALLEL_THRESHOLD_TRACE)
   for (i = 0; i < max_iter ; ++i) {
     acc += SQUARE(S[i]);
@@ -72,7 +73,7 @@ double traceDiagS2(const double * const S, size_t p) {
 // Compute the sum of the || x_k ||_2^4 for x_k being the k-th sample (row)
 double sumNorm2p4(const double * const data, size_t n, size_t p) {
   double sum_norms_4 = 0.0;
-  size_t ni;
+  ptrdiff_t ni;
   #pragma omp parallel for reduction(+:sum_norms_4) if(n >= PARALLEL_THRESHOLD)
   for (ni = 0; ni < n; ++ni) {
     double norm_sq = 0.0;
@@ -88,7 +89,7 @@ double sumNorm2p4(const double * const data, size_t n, size_t p) {
 
 
 void scalar_multiply(double * const data, size_t n, double scale) {
-  size_t i;
+  ptrdiff_t i;
   #pragma omp parallel for if(n >= PARALLEL_THRESHOLD)
   for (i = 0; i < n ; ++i) {
     data[i] = scale * data[i];
@@ -96,7 +97,7 @@ void scalar_multiply(double * const data, size_t n, double scale) {
 }
 
 void scalar_multiply_copy(const double * const data, double * const output, size_t n, double scale) {
-  size_t i;
+  ptrdiff_t i;
   #pragma omp parallel for if(n >= PARALLEL_THRESHOLD)
   for (i = 0; i < n ; ++i) {
     output[i] = scale * data[i];
@@ -125,7 +126,7 @@ double C_OAS(
 
   // Shrink the cov
   const double scale = 1.0 - shrinkage;
-  size_t i;
+  ptrdiff_t i;
   #pragma omp parallel for if(p2 >= PARALLEL_THRESHOLD)
   for (i = 0; i < p2; ++i) {
     sample_cov_star[i] = sample_cov[i] * scale;
@@ -167,7 +168,7 @@ void C_LWAnalytical(
   }
 
   // Handle main part
-  size_t i;
+  ptrdiff_t i;
   #pragma omp parallel for schedule(guided) if(max_iter >= PARALLEL_THRESHOLD_LWA)
   for (i = 0; i < max_iter; ++i) {
 
