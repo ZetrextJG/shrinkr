@@ -29,4 +29,5 @@ plugins:
 
 nav:
   - Home: index.md
+  - News: news.md
   - API Reference: api.md

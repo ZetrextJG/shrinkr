@@ -1,11 +1,14 @@
 #!/bin/bash
 
-# rm -rf docs/_build/html
+# Cleanup
+rm -rf site
 
 uv sync --group docs
 
 uv pip install -e .
 
 cp README.md ./docs/index.md
+cp NEWS.md ./docs/news.md
+
 uv run mkdocs serve
 

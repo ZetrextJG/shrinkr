@@ -364,6 +364,7 @@ double C_DEAL(
   #define cost(log_gamma) C_DEALObjective(base_evals, surr_evals, z_vec, exp(log_gamma), &delta, n, p)
 
   // a, b, c and d are the points for the golden section search
+  // a -- c -- d -- b
   double a, b, c, d;
   double cost_c, cost_d;
 

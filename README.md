@@ -61,6 +61,8 @@ Benchmarking tools can be found in `./.devel/bench`.
 ### Styling
 
 Styling is handled entirely with *ruff* and enforced on every commit by *pre-commit*.
+Docstrings must be in the [numpy docstring](https://numpy.org/doc/1.19/docs/howto_document.html)
+format. Also enforced by *ruff*.
 
 
 ## Benchmark results (8 cores and 16 cores)
