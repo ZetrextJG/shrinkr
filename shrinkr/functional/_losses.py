@@ -1,18 +1,23 @@
 import numpy as np
 
 
-def prial(sample_cov: np.ndarray, sigma_hat: np.ndarray, sigma: np.ndarray) -> float:
-    """Percentage Relative Improvement in Average Loss
+def loss_prial(sample_cov: np.ndarray, sigma_hat: np.ndarray, sigma: np.ndarray) -> float:
+    """Percentage Relative Improvement in Average Loss (PRIAL).
 
-    Args:
-        sample_cov: Sample covariance
-        sigma_hat: Estimated Covariance
-        sigma: True Covariance
+    Parameters
+    ----------
+    sample_cov : np.ndarray
+        Sample covariance matrix.
+    sigma_hat : np.ndarray
+        Estimated covariance matrix.
+    sigma : np.ndarray
+        True covariance matrix.
 
-    Returns:
-        Percentage improvement (between 0,1)
+    Returns
+    -------
+    float
+        Percentage improvement relative to the oracle, in the range [0, 1].
     """
-
     # Checks
     if len(sample_cov.shape) != 2:
         raise ValueError("Sigma hat has to be a matrix")
@@ -35,14 +40,18 @@ def prial(sample_cov: np.ndarray, sigma_hat: np.ndarray, sigma: np.ndarray) -> f
 def mv_opt_cov(sample_cov: np.ndarray, sigma: np.ndarray) -> np.ndarray:
     """Minimal variance optimal rotation equivariant estimator.
 
-    Args:
-        sample_cov: Sample covariance
-        sigma: True Covariance
+    Parameters
+    ----------
+    sample_cov : np.ndarray
+        Sample covariance matrix.
+    sigma : np.ndarray
+        True covariance matrix.
 
-    Returns:
-        Optimal (under MV) Rotation Equivariant Estimator
+    Returns
+    -------
+    np.ndarray
+        Oracle optimal rotation equivariant estimator under the MV loss.
     """
-
     # Checks
     if len(sample_cov.shape) != 2:
         raise ValueError("Sigma hat has to be a matrix")
@@ -59,15 +68,21 @@ def mv_opt_cov(sample_cov: np.ndarray, sigma: np.ndarray) -> np.ndarray:
 
 
 def loss_fm(v: np.ndarray, sigma: np.ndarray, mu: np.ndarray) -> float:
-    """The Fisher Margin loss
+    """Fisher Margin (FM) loss.
 
-    Args:
-        v: An LDA vector computed from data
-        sigma: True Covariance
-        mu: True difference in means vector
+    Parameters
+    ----------
+    v : np.ndarray
+        LDA vector computed from data.
+    sigma : np.ndarray
+        True covariance matrix.
+    mu : np.ndarray
+        True difference-in-means vector.
 
-    Returns:
-        The value of the FM loss
+    Returns
+    -------
+    float
+        Value of the FM loss.
     """
     if len(v.shape) != 1:
         raise ValueError("v has to be a 1D vector")
@@ -82,16 +97,20 @@ def loss_fm(v: np.ndarray, sigma: np.ndarray, mu: np.ndarray) -> float:
 
 
 def loss_mv(sigma_hat: np.ndarray, sigma: np.ndarray) -> float:
-    """The Minimal Variance (MV) loss
+    """Minimal Variance (MV) loss.
 
-    Args:
-        sample_hat: Estimate of the true covariance
-        sigma: True Covariance
+    Parameters
+    ----------
+    sigma_hat : np.ndarray
+        Estimated covariance matrix.
+    sigma : np.ndarray
+        True covariance matrix.
 
-    Returns:
-        The value of the MV loss
+    Returns
+    -------
+    float
+        Value of the MV loss.
     """
-
     # Checks
     if len(sigma_hat.shape) != 2:
         raise ValueError("sigma hat has to be a matrix")
@@ -110,8 +129,20 @@ def loss_mv(sigma_hat: np.ndarray, sigma: np.ndarray) -> float:
 
 
 def loss_fr(matrixA: np.ndarray, matrixB: np.ndarray) -> float:
-    "The Frobenius distance between matrices."
+    """Frobenius distance between two matrices.
 
+    Parameters
+    ----------
+    matrixA : np.ndarray
+        First matrix.
+    matrixB : np.ndarray
+        Second matrix.
+
+    Returns
+    -------
+    float
+        Scaled squared Frobenius distance between the matrices.
+    """
     # Checks
     if len(matrixA.shape) != 2:
         raise ValueError("matrixB hat has to be a matrix")

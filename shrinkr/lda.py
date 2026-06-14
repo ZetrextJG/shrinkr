@@ -1,3 +1,5 @@
+"""Defines the Linear Discriminant Analysis Classifier with selectable shrinkage method."""
+
 import numpy as np
 
 from shrinkr.base import BaseEstimator
@@ -9,6 +11,38 @@ LDA_METHODS = METHODS + LDA_ONLY_METHODS
 
 # TODO: Add DEAL
 class LinearDiscriminantAnalysis(BaseEstimator):
+    """Binary Linear Discriminant Analysis with pluggable covariance shrinkage.
+
+    Fits a two class LDA model and classifies by the
+    log-posterior ratio. The pooled covariance can be estimated with any
+    method supported by [`CovarianceEstimator`][shrinkr.cov.CovarianceEstimator].
+
+    Parameters
+    ----------
+    covariance_estimator : CovarianceEstimator, optional
+        Estimator used to compute the pooled within-class covariance.
+        If None, an empirical (unshrunk) covariance is used.
+
+    Attributes
+    ----------
+    classes_ : np.ndarray of shape (2,)
+        The two class labels seen during [`fit`][shrinkr.lda.LinearDiscriminantAnalysis.fit].
+    priors_ : np.ndarray of shape (2,)
+        Class prior probabilities estimated from the training data.
+    means_ : np.ndarray of shape (2, n_features)
+        Per-class sample means.
+    covariance_ : np.ndarray of shape (n_features, n_features)
+        Pooled within-class covariance matrix (after shrinkage if applicable).
+    precision_ : np.ndarray of shape (n_features, n_features)
+        Pseudo-inverse of `covariance_`.
+    coef_ : np.ndarray of shape (1, n_features)
+        Linear discriminant direction.
+    intercept_ : np.ndarray of shape (1,)
+        Decision boundary offset.
+    is_fitted_ : bool
+        True after [`fit`][shrinkr.lda.LinearDiscriminantAnalysis.fit] has been called successfully.
+    """
+
     def __init__(self, covariance_estimator=None):
         self.covariance_estimator = covariance_estimator
 
@@ -22,6 +56,26 @@ class LinearDiscriminantAnalysis(BaseEstimator):
         self.is_fitted_: bool = False
 
     def fit(self, X: np.ndarray, y: np.ndarray):
+        """Fit the LDA model on labelled training data.
+
+        Parameters
+        ----------
+        X : np.ndarray of shape (n_samples, n_features)
+            Training data.
+        y : np.ndarray of shape (n_samples,)
+            Binary class labels. Exactly two distinct values must be present.
+
+        Returns
+        -------
+        self : LinearDiscriminantAnalysis
+            Fitted estimator.
+
+        Raises
+        ------
+        ValueError
+            If ``X`` is not 2-D, ``X`` and ``y`` have different lengths, or
+            ``y`` does not contain exactly two classes.
+        """
         if X.ndim != 2:
             raise ValueError(f"Expected 2D array, got {X.ndim}D array instead.")
         if len(X) != len(y):
@@ -64,19 +118,52 @@ class LinearDiscriminantAnalysis(BaseEstimator):
         return self
 
     def decision_function(self, X: np.ndarray):
-        """Returns the log-odds for the positive class."""
+        """Compute the log-odds score for the positive class.
+
+        Parameters
+        ----------
+        X : np.ndarray of shape (n_samples, n_features)
+            Samples to score.
+
+        Returns
+        -------
+        np.ndarray of shape (n_samples,)
+            Log-odds of the positive class for each sample.
+        """
         if not self.is_fitted_:
             raise ValueError("This estimator is not fitted yet.")
         return (X @ self.coef_.T + self.intercept_).ravel()
 
     def predict(self, X: np.ndarray):
-        """Predicts binary class labels for X."""
+        """Predict binary class labels.
+
+        Parameters
+        ----------
+        X : np.ndarray of shape (n_samples, n_features)
+            Samples to classify.
+
+        Returns
+        -------
+        np.ndarray of shape (n_samples,)
+            Predicted class label for each sample.
+        """
         scores = self.decision_function(X)
         indices = (scores > 0).astype(int)
         return self.classes_[indices]
 
     def predict_proba(self, X: np.ndarray):
-        """Estimates class probabilities using the logistic sigmoid function."""
+        """Estimate class probabilities using the logistic sigmoid.
+
+        Parameters
+        ----------
+        X : np.ndarray of shape (n_samples, n_features)
+            Samples to score.
+
+        Returns
+        -------
+        np.ndarray of shape (n_samples, 2)
+            Columns are ``[P(class 0), P(class 1)]`` for each sample.
+        """
         scores = self.decision_function(X)
         prob_1 = 1 / (1 + np.exp(-scores))
         return np.vstack([1 - prob_1, prob_1]).T

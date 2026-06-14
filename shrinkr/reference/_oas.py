@@ -5,13 +5,31 @@ import numpy as np
 
 
 def ref_oas(sample_cov: np.ndarray, n: int, p: int | None = None) -> tuple[np.ndarray, float]:
-    """Estimate covariance with the Oracle Approximating Shrinkage algorithm.
+    """Oracle Approximating Shrinkage (OAS) covariance estimator (reference implementation).
 
-    The formulation is based on [1]_.
-    [1] "Shrinkage algorithms for MMSE covariance estimation.",
-        Chen, Y., Wiesel, A., Eldar, Y. C., & Hero, A. O.
-        IEEE Transactions on Signal Processing, 58(10), 5016-5029, 2010.
-        https://arxiv.org/pdf/0907.4698.pdf
+    Parameters
+    ----------
+    sample_cov : np.ndarray
+        Sample covariance matrix of shape (p, p).
+    n : int
+        Number of observations used to compute the sample covariance.
+    p : int, optional
+        Number of variables. If None, inferred from ``sample_cov``.
+
+    Returns
+    -------
+    sample_cov_star : np.ndarray
+        Shrinkage-regularized covariance matrix of shape (p, p).
+    shrinkage : float
+        Optimal shrinkage coefficient.
+
+    See Also
+    --------
+    [`shrinkr.functional.oas`][]
+        Optimized implementation of this method.
+        Go there for additional notes and references.
+        Functions ref_* are reference implementations intended for validation.
+
     """
     if len(sample_cov.shape) != 2:
         raise ValueError("Expected a square numpy matrix")

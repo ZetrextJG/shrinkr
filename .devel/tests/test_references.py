@@ -1,7 +1,8 @@
 import numpy as np
 import pytest
+from shrinkr.reference.deal import ref_deal
 
-from shrinkr.functional import loss_fm, prial
+from shrinkr.functional import loss_fm, loss_prial
 from shrinkr.monte_carlo import get_large_sample_cov, get_small_sample_cov
 from shrinkr.reference import (
     ref_lw_analytical,
@@ -9,7 +10,6 @@ from shrinkr.reference import (
     ref_lw_linear,
     ref_oas,
 )
-from shrinkr.reference.deal import ref_deal
 
 
 @pytest.mark.unit
@@ -31,11 +31,11 @@ def test_lw_analytical():
     assert lam1.shape == lam.shape
 
     sc_hat1 = U @ np.diag(lam1) @ (U.T)
-    prial1 = prial(sc, sc_hat1, rc)
+    prial1 = loss_prial(sc, sc_hat1, rc)
 
     lam2 = ref_lw_analytical_unstable(lam, n)
     sc_hat2 = U @ np.diag(lam2) @ (U.T)
-    prial2 = prial(sc, sc_hat2, rc)
+    prial2 = loss_prial(sc, sc_hat2, rc)
 
     # Expect (at least) some improvement
     # and more stable then original

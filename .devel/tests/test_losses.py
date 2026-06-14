@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from shrinkr.functional import loss_fr, mv_opt_cov, prial
+from shrinkr.functional import loss_fr, loss_prial, mv_opt_cov
 
 
 @pytest.mark.unit
@@ -29,13 +29,13 @@ def test_prial():
     sample_cov: np.ndarray = np.cov(X, rowvar=False)
 
     # No improvement over sample covariance
-    loss = prial(sample_cov, sample_cov, true_cov)
+    loss = loss_prial(sample_cov, sample_cov, true_cov)
     assert np.allclose(loss, 0.0)
 
     # Max improvement over sample covariance
     # Under rotation equivariance
     sample_ast = mv_opt_cov(sample_cov, true_cov)
-    loss = prial(sample_cov, sample_ast, true_cov)
+    loss = loss_prial(sample_cov, sample_ast, true_cov)
     assert np.allclose(loss, 1.0)
 
 

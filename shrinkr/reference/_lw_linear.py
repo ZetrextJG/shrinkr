@@ -8,31 +8,34 @@ import numpy as np
 def ref_lw_linear(
     X: np.ndarray, assume_centered: bool = False, block_size: int = 1000
 ) -> tuple[np.ndarray, float]:
-    """Estimate the (linear) shrunk Ledoit-Wolf covariance matrix.
+    """Ledoit-Wolf linear shrinkage estimator (reference implementation).
 
-    Args:
-        X: array-like of shape (n_samples, n_features)
-            Data from which to compute the Ledoit-Wolf shrunk covariance shrinkage.
+    Parameters
+    ----------
+    X : np.ndarray
+        Data matrix of shape (n_samples, n_features).
+    assume_centered : bool, optional
+        If True, data is not mean-centered before computing the covariance.
+        Default is False.
+    block_size : int, optional
+        Size of blocks into which the covariance matrix is split for computation.
+        Default is 1000.
 
-        assume_centered:
-            If True, data will not be centered before computation.
-            Useful to work with data whose mean is significantly equal to
-            zero but is not exactly zero.
-            If False, data will be centered before computation.
+    Returns
+    -------
+    sample_cov_star : np.ndarray
+        Shrinkage-regularized covariance matrix of shape (n_features, n_features).
+    shrinkage : float
+        Optimal shrinkage coefficient.
 
-        block_size:
-            Size of blocks into which the covariance matrix will be split.
 
-    Returns:
-        Coefficient in the convex combination used for the computation
-        of the shrunk estimate.
+    See Also
+    --------
+    [`shrinkr.functional.lw_linear`][]
+        Optimized implementation of this method.
+        Go there for additional notes and references.
+        Functions ref_* are reference implementations intended for validation.
 
-    Notes:
-        The regularized (shrunk) covariance is:
-
-        (1 - shrinkage) * cov + shrinkage * mu * np.identity(n_features),
-
-        where mu = trace(cov) / n_features.
     """
     # for only one feature, the result is the same whatever the shrinkage
     if len(X.shape) == 2 and X.shape[1] == 1:

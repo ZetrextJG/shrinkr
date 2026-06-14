@@ -1,3 +1,5 @@
+"""Defines the Covariance Estimator with selectable shrinkage method."""
+
 import numpy as np
 
 from shrinkr.base import BaseEstimator
@@ -10,6 +12,32 @@ METHODS = ["empirical"] + C_METHODS + REF_METHODS
 
 
 class CovarianceEstimator(BaseEstimator):
+    """Covariance matrix estimator with optional shrinkage.
+
+    Wraps several shrinkage methods behind a scikit-learn-compatible
+    ``fit`` / ``predict`` interface.
+
+    Parameters
+    ----------
+    method : str, optional
+        Shrinkage method to apply. One of ``'empirical'``, ``'lw_linear'``,
+        ``'lw_analytical'``, ``'oas'``, or their ``'ref_*'`` reference
+        counterparts. Default is ``'empirical'``.
+    tol : float, optional
+        Eigenvalue threshold passed to eigenvalue-based methods. Default is 1e-8.
+
+    Attributes
+    ----------
+    is_fitted_ : bool
+        True after [`fit`][shrinkr.cov.CovarianceEstimator.fit] has been called successfully.
+    data_ : np.ndarray
+        The data passed to [`fit`][shrinkr.cov.CovarianceEstimator.fit].
+    cov_ : np.ndarray or None
+        Raw sample covariance matrix. Set only for methods that require it.
+    shrunk_cov_ : np.ndarray or None
+        Shrinkage-regularized covariance matrix produced by [`fit`][shrinkr.cov.CovarianceEstimator.fit].
+    """
+
     def __init__(self, *, param=1, method: str = "empirical", tol: float = 1e-8):
         self.param = param
         self.tol = tol
@@ -24,6 +52,20 @@ class CovarianceEstimator(BaseEstimator):
         self.shrunk_cov_: np.ndarray | None = None
 
     def fit(self, X: np.ndarray, y=None):
+        """Compute the (shrunk) covariance matrix from data.
+
+        Parameters
+        ----------
+        X : np.ndarray
+            Data matrix of shape (n_samples, n_features).
+        y : ignored
+            Present for API compatibility.
+
+        Returns
+        -------
+        self : CovarianceEstimator
+            Fitted estimator.
+        """
         if X.ndim != 2:
             raise ValueError(f"Expected 2D array, got {X.ndim}D array instead.")
 
@@ -75,6 +117,19 @@ class CovarianceEstimator(BaseEstimator):
         return self
 
     def predict(self, X):
+        """Return the fitted covariance matrix.
+
+        Parameters
+        ----------
+        X : ignored
+            Present for API compatibility.
+
+        Returns
+        -------
+        np.ndarray
+            The shrinkage-regularized covariance matrix, or the raw sample
+            covariance if no shrinkage method produced a result.
+        """
         if not self.is_fitted_:
             raise ValueError("This CovarianceEstimator instance is not fitted yet.")
 
@@ -83,4 +138,20 @@ class CovarianceEstimator(BaseEstimator):
         return self.cov_
 
     def fit_predict(self, X, y=None):
+        """Fit and immediately return the covariance matrix.
+
+        Equivalent to calling [`fit`][shrinkr.cov.CovarianceEstimator.fit] followed by [`predict`][shrinkr.cov.CovarianceEstimator.predict].
+
+        Parameters
+        ----------
+        X : np.ndarray
+            Data matrix of shape (n_samples, n_features).
+        y : ignored
+            Present for API compatibility.
+
+        Returns
+        -------
+        np.ndarray
+            The shrinkage-regularized covariance matrix.
+        """
         return self.fit(X, y).predict(X)

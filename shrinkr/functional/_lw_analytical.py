@@ -7,6 +7,28 @@ from shrinkr._native import py_lw_analytical
 def lw_analytical(
     eigenvalues: np.ndarray, n: int, p: int | None = None, eps: float = 1e-8
 ) -> np.ndarray:
+    """Ledoit-Wolf Analytical (nonlinear) shrinkage of eigenvalues.
+
+    Based on Ledoit and Wolf (2018), using the analytic formula that avoids
+    numerical optimization. Handles the high-dimensional setting where p > n.
+
+    Parameters
+    ----------
+    eigenvalues : np.ndarray
+        1-D array of eigenvalues of the sample covariance matrix.
+    n : int
+        Number of observations used to compute the sample covariance.
+    p : int, optional
+        Number of variables. If None, inferred as ``len(eigenvalues)``.
+    eps : float, optional
+        Threshold below which eigenvalues are treated as numerically zero.
+        Default is 1e-8.
+
+    Returns
+    -------
+    np.ndarray
+        Analytically shrunk eigenvalues of the same shape as ``eigenvalues``.
+    """
     # Checks
     if len(eigenvalues.shape) != 1:
         raise ValueError("eigenvalues have to be a flat ndarray")

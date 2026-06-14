@@ -1,24 +1,37 @@
 # The adapted code from
 # https://github.com/matzhaugen/analytic_shrinkage
-#
+
 
 import numpy as np
 
 
 def ref_lw_analytical_unstable(lam: np.ndarray, n: int, eps: float = 1e-8):
-    """Shrink covarince matrix using non-linear shrinkage as described in
-    Ledoit and Wolf 2018 http://www.econ.uzh.ch/static/wp/econwp264.pdf .
-    The code uses an analytic formula which was previously not available
-    and is thus much faster because there is no optimization necessary. The code can
-    also handle the high-dimensional setting with p>n .
+    """Ledoit-Wolf Analytical (nonlinear) shrinkage — numerically unstable variant.
 
-    Args:
-        lam: empirical eigenvalues
-        n: effectivate sample size
-        eps: Epsilon value to use for eigenvalue filtering
+    Identical in formula to [`ref_lw_analytical`][shrinkr.reference.ref_lw_analytical] but without the numerical
+    stability fixes for singularities and large tails. Kept for reference only;
+    use [`ref_lw_analytical`][shrinkr.reference.ref_lw_analytical] for proper reference.
 
-    Returns:
-        LW-adjusted eigenvalues
+    Parameters
+    ----------
+    lam : np.ndarray
+        1-D array of empirical eigenvalues.
+    n : int
+        Effective sample size.
+    eps : float, optional
+        Threshold below which eigenvalues are treated as numerically zero.
+        Default is 1e-8.
+
+    Returns
+    -------
+    np.ndarray
+        Analytically shrunk eigenvalues.
+
+    See Also
+    --------
+    [`shrinkr.functional.lw_analytical`][]
+        Optimized, numerically stable implementation. This is a reference
+        implementation intended for validation.
 
     """
     assert len(lam.shape) == 1
@@ -75,19 +88,30 @@ def ref_lw_analytical_unstable(lam: np.ndarray, n: int, eps: float = 1e-8):
 
 
 def ref_lw_analytical(lam: np.ndarray, n: int, eps: float = 1e-8) -> np.ndarray:
-    """Shrink covarince matrix using non-linear shrinkage as described in
-    Ledoit and Wolf 2018 http://www.econ.uzh.ch/static/wp/econwp264.pdf .
-    The code uses an analytic formula which was previously not available
-    and is thus much faster because there is no optimization necessary.
-    The code can also handle the high-dimensional setting with p>n.
+    """Ledoit-Wolf Analytical (nonlinear) shrinkage of eigenvalues (reference implementation).
 
-    Args:
-        lam: empirical eigenvalues
-        n: effectivate sample size
-        eps: Epsilon value to use for eigenvalue filtering
+    Parameters
+    ----------
+    lam : np.ndarray
+        1-D array of empirical eigenvalues.
+    n : int
+        Effective sample size.
+    eps : float, optional
+        Threshold below which eigenvalues are treated as numerically zero.
+        Default is 1e-8.
 
-    Returns:
-        LW-adjusted eigenvalues
+    Returns
+    -------
+    np.ndarray
+        Analytically shrunk eigenvalues.
+
+    See Also
+    --------
+    [`shrinkr.functional.lw_analytical`][]
+        Optimized implementation of this method. This is a reference
+        implementation intended for validation; prefer the functional version
+        for performance-critical use.
+
     """
     assert len(lam.shape) == 1
 

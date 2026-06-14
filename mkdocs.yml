@@ -1,0 +1,32 @@
+site_name: shrinkr Docs
+site_description: Documentation for the shrinkr package
+site_url: https://zetrextjg.github.io/shrinkr/ # Update this later if using GitHub Pages
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [.]
+          inventories:
+            - https://docs.python.org/3/objects.inv
+          options:
+            docstring_style: numpy
+            show_root_heading: true
+            show_root_toc_entry: true
+            filters:
+              - "!^_"
+              - "!^__all__$"
+              - "!^__file__$"
+              - "!^__name__$"
+              - "!^__package__$"
+
+nav:
+  - Home: index.md
+  - API Reference: api.md

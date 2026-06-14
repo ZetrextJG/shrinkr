@@ -2,10 +2,10 @@ from typing import Literal
 
 import numpy as np
 
-from .lw_analytical import ref_lw_analytical
+from ._lw_analytical import ref_lw_analytical
 
 
-def deterministic_equivalent_objective(
+def ref_deal_objective(
     base_evals: np.ndarray,
     surrogate_evals: np.ndarray,
     z_vec: np.ndarray,
@@ -15,27 +15,47 @@ def deterministic_equivalent_objective(
     max_iters: int = 200,
     eps: float = 1e-8,
 ):
-    """
+    """Objective function of DEAL (reference implementation).
+
     Computes the optimization objective using deterministic equivalents.
-    The method requires solving a fixed point equation for delta of gamma.
+    Requires solving a fixed-point equation for delta at a given gamma.
 
-    Args:
-        evals - Estimator for the evals of the underlying covariance matrix
-        sevals - Scaled evals as for the variance schedule
-        z_vec - The projected direction for the minization objective
-        gamma -  gamma (scalar value for the resolvent of the matrix S)
-        n - Number of observations used to compute matrix S (effective sample size)
-        start_value - Starting value for the fixed point method (can be used for worm-starts)
-        max_iters -  Maximum number of iterations for the fixed point method
-        mu_noise_scale - The noise scale for trace penalty based on noisy mu
-        eps -  Required precision for early stopping of the fixed point method
+    Parameters
+    ----------
+    base_evals : np.ndarray
+        Eigenvalue estimates for the base covariance matrix (those that will be shrunk).
+    surrogate_evals : np.ndarray
+        Eigenvalue estimates used to compute the shrinkage parameters.
+    z_vec : np.ndarray
+        Vector of interest projected into the eigenvector space.
+    gamma : float
+        Scalar resolvent parameter for the matrix S.
+    n : int
+        Effective number of observations used to compute the sample covariance matrix.
+    start_value : float, optional
+        Starting value for the fixed-point iteration (supports warm-starts). Default is 1.
+    max_iters : int, optional
+        Maximum number of fixed-point iterations. Default is 200.
+    eps : float, optional
+        Convergence tolerance for early stopping. Default is 1e-8.
 
-    Returns:
-        - the estimate of the risk objective
-        - the delta value
+    Returns
+    -------
+    obj : float
+        The DEAL risk objective estimate.
+    delta : float
+        The converged delta value from the fixed-point iteration.
+    delta_prime : float
+        The derivative of delta with respect to gamma.
+
+    See Also
+    --------
+    [`shrinkr.functional.deal_objective`][]
+        Optimized implementation of this method.
+        Go there for additional notes and references.
+        Functions ref_* are reference implementations intended for validation.
 
     """
-
     # Compute delta (and beta) and diagT via fixed point iterations
     # diagT is the vector of the diagonal of the T (deterministic_equivalent) matrix
     # invDiagT is the vector of the inverse diagonal of the T matrix
@@ -80,9 +100,7 @@ def deterministic_equivalent_objective(
 
 
 def golden_section_search(objective_fn, a, b, initial_delta, tol=1e-5):
-    """
-    Finds the minimum of a 1D function within bounds [a, b].
-    """
+    """Find the minimum of a 1D function within bounds [a, b] using golden-section search."""
     # Make the opt in log space
     a = np.log(a)
     b = np.log(b)
@@ -151,22 +169,38 @@ def ref_deal(
     eps=1e-8,
     **kwargs,
 ):
-    """
-    The DEAL (Deterministic equivalents for Adaptive LDA) method.
+    """DEAL (Deterministic Equivalents for Adaptive LDA) shrinkage (reference implementation).
 
-    Args:
-        evals - The eigenvales of the empirical covariance matrix
-        z_vec - Vector of interest projected to the eigenvector space
-        n_eff - the effective number of samples used to compute the empirical covariance matrix
-        gamma_min, gamma_max - minimum and maximum values for the gamma grid search / bounded search
-        base_shrinkage - which shrinkage to use for the base eigenvalue estimation: lw_analytical, linear, empirical
-        surrogate_shrinkage - which shrinkage to use for the surrogate eigenvalue estimation: lw_analytical, linear, empirical
-        eps - epsilon value
+    Parameters
+    ----------
+    evals : np.ndarray
+        Eigenvalues of the empirical covariance matrix.
+    z_vec : np.ndarray
+        Vector of interest projected into the eigenvector space.
+    n_eff : int
+        Effective number of samples used to compute the empirical covariance matrix.
+    gamma_min : float, optional
+        Minimum value for the gamma bounded search. Default is 0.02.
+    gamma_max : float, optional
+        Maximum value for the gamma bounded search. Default is 100.
+    base_shrinkage : {'lw_analytical', 'empirical'}, optional
+        Shrinkage method for the base eigenvalue estimation. Default is 'lw_analytical'.
+    surrogate_shrinkage : {'lw_analytical', 'empirical'}, optional
+        Shrinkage method for the surrogate eigenvalue estimation. Default is 'lw_analytical'.
+    eps : float, optional
+        Epsilon for numerical stability. Default is 1e-8.
 
-    Returns:
-        - The Adjusted LDA vector,
-        - The grid of gamma values used (if optimizer == grid else None),
-        - The objective values for each of the grid value (if optimizer == grid else None)
+    Returns
+    -------
+    np.ndarray
+        Shrinkage-adjusted eigenvalues.
+
+    See Also
+    --------
+    [`shrinkr.functional.deal`][]
+        Optimized implementation of this method.
+        Go there for additional notes and references.
+        Functions ref_* are reference implementations intended for validation.
 
     """
     # Rescale eigenvalues to Trace p
@@ -194,7 +228,7 @@ def ref_deal(
 
     # Optimization
     def objective_fn(gamma, start_delta):
-        return deterministic_equivalent_objective(
+        return ref_deal_objective(
             surrogate_evals=surrogate_evals,
             base_evals=evals,
             z_vec=z_vec,

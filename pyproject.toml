@@ -28,7 +28,13 @@ dev = [
     "scikit-learn>=1.9.0",
     "setuptools>=82.0.1",
     "tqdm>=4.68.2",
+    "ty>=0.0.49",
     "wheel>=0.47.0",
+]
+docs = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.7.6",
+    "mkdocstrings[python]>=1.0.4",
 ]
 
 [tool.pytest.ini_options]
@@ -56,12 +62,21 @@ select = [
     "I",   # import sorting
     "B",   # bugbear
     "UP",  # pyupgrade
+    "D",   # docstring
 ]
 
 ignore = [
     "E501",  # handled by formatter
+    "D202",  # whitespace after docstings
+    "D203", "D212" # conflicting docstring rules
 ]
 
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.per-file-ignores]
+".devel/**/*.py" = ["D"] # no docstrings for tests needed

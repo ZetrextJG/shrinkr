@@ -1,3 +1,5 @@
+"""Setup shrinkr."""
+
 import os
 import sys
 
@@ -33,6 +35,8 @@ class HighPerfBuildExt(build_ext):
     """Inject compiler-specific optimization flags."""
 
     def build_extensions(self):
+        """Inject compiler-specific optimization flags."""
+
         compiler_type = self.compiler.compiler_type
 
         compile_args = []

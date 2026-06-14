@@ -12,6 +12,7 @@ wheels/
 # Object files
 *.o
 *.so
+*.out
 
 # UV lock
 uv.lock
@@ -24,3 +25,6 @@ uv.lock
 
 # Bench data
 .devel/bench/data/*.bin
+
+# MkDocs site
+site

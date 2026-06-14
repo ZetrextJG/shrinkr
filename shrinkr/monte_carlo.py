@@ -1,20 +1,29 @@
+"""Submodule with simple monte carlo methods for getting testing data."""
+
 import numpy as np
 
 
 def get_small_sample_cov(n: int = 50, seed: int = 0) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Generates a small sample from multivariance normal distribtuion
+    """Generate a small sample from a fixed 2-D multivariate normal distribution.
 
-    Args:
-        n: A number of sample to generate
-        seed: A seed for the random number generator
+    The population covariance is ``[[0.4, 0.2], [0.2, 0.8]]``.
 
-    Returns (in a triple):
-        X: (n, 2) shaped matrix
-        sample_cov: (2, 2) sample covariance matrix
-        real_cov: (2, 2) population (real) covariance matrix
+    Parameters
+    ----------
+    n : int, optional
+        Number of samples to generate. Default is 50.
+    seed : int, optional
+        Seed for ``numpy.random.RandomState``. Default is 0.
 
+    Returns
+    -------
+    X : np.ndarray of shape (n, 2)
+        Simulated data matrix.
+    sample_cov : np.ndarray of shape (2, 2)
+        Sample covariance matrix computed from ``X``.
+    real_cov : np.ndarray of shape (2, 2)
+        Population (true) covariance matrix.
     """
-
     real_cov: np.ndarray = np.array([[0.4, 0.2], [0.2, 0.8]])
     rng = np.random.RandomState(seed)
     X = rng.multivariate_normal(mean=[0, 0], cov=real_cov, size=n)
@@ -22,8 +31,32 @@ def get_small_sample_cov(n: int = 50, seed: int = 0) -> tuple[np.ndarray, np.nda
     return X, sample_cov, real_cov
 
 
-def get_large_sample_cov(p: int = 20, n: int = 200, seed: int = 0):
-    """Generate random Gaussian data with a random PSD covariance matrix."""
+def get_large_sample_cov(
+    p: int = 20, n: int = 200, seed: int = 0
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Generate Gaussian data with a random positive semi-definite covariance matrix.
+
+    The population covariance is constructed as ``A @ A.T`` (normalized to unit
+    trace) plus a small ridge ``1e-4`` for numerical stability.
+
+    Parameters
+    ----------
+    p : int, optional
+        Number of features (dimension). Default is 20.
+    n : int, optional
+        Number of samples. Default is 200.
+    seed : int, optional
+        Seed for ``numpy.random.default_rng``. Default is 0.
+
+    Returns
+    -------
+    X : np.ndarray of shape (n, p)
+        Simulated data matrix.
+    sample_cov : np.ndarray of shape (p, p)
+        Sample covariance matrix computed from ``X``.
+    real_cov : np.ndarray of shape (p, p)
+        Population (true) covariance matrix.
+    """
     rng = np.random.default_rng(seed)
 
     # Create real cov
