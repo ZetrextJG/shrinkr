@@ -19,6 +19,10 @@ theme:
         icon: material/brightness-7
         name: Switch to dark mode
 
+markdown_extensions:
+  - pymdownx.highlight
+  - pymdownx.superfences
+
 extra:
   social:
     - icon: fontawesome/brands/github
