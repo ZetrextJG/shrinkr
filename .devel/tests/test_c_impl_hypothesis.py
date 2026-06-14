@@ -15,7 +15,7 @@ from shrinkr.reference import ref_lw_analytical, ref_lw_linear, ref_oas
     n=st.integers(min_value=100, max_value=300),
     seed=st.integers(min_value=0, max_value=2**32 - 1),
 )
-def test_lw_analytical_p_less_n(p, n, seed):
+def test_lw_analytical(p, n, seed):
     _, sc, _ = get_large_sample_cov(p=p, n=n, seed=seed)
     lam, U = np.linalg.eigh(sc)
 

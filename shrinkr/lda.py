@@ -4,27 +4,33 @@ import numpy as np
 
 from shrinkr.base import BaseEstimator
 from shrinkr.cov import METHODS, CovarianceEstimator
+from shrinkr.functional import deal
+from shrinkr.reference import ref_deal
 
 LDA_ONLY_METHODS = ["deal", "ref_deal"]
 LDA_METHODS = METHODS + LDA_ONLY_METHODS
 
 
-# TODO: Add DEAL
 class LinearDiscriminantAnalysis(BaseEstimator):
     """Binary Linear Discriminant Analysis with pluggable covariance shrinkage.
 
     Fits a two class LDA model and classifies by the
     log-posterior ratio. The pooled covariance can be estimated with any
-    method supported by [`CovarianceEstimator`][shrinkr.cov.CovarianceEstimator].
+    method supported by [`CovarianceEstimator`][shrinkr.cov.CovarianceEstimator]
+    or specialized LDA shrinkage ``deal``.
 
     Parameters
     ----------
-    covariance_estimator : CovarianceEstimator, optional
-        Estimator used to compute the pooled within-class covariance.
-        If None, an empirical (unshrunk) covariance is used.
+    method : str, optional
+        Estimator used to shrink (compute) the pooled within-class covariance.
+        See [`shrinkr.cov.CovarianceEstimator`][] for allowed values.
+        Additionally we allow ``deal`` and ``ref_deal``.
+        Default is ``empirical``.
 
     Attributes
     ----------
+    covariance_estimator_ : CovarianceEstimator
+        Instance of the Covariance Estimator for shrinkage LDA.
     classes_ : np.ndarray of shape (2,)
         The two class labels seen during [`fit`][shrinkr.lda.LinearDiscriminantAnalysis.fit].
     priors_ : np.ndarray of shape (2,)
@@ -43,8 +49,14 @@ class LinearDiscriminantAnalysis(BaseEstimator):
         True after [`fit`][shrinkr.lda.LinearDiscriminantAnalysis.fit] has been called successfully.
     """
 
-    def __init__(self, covariance_estimator=None):
-        self.covariance_estimator = covariance_estimator
+    def __init__(self, method: str = "empirical"):
+
+        self.method = method
+
+        if self.method in LDA_ONLY_METHODS:
+            self.covariance_estimator_ = CovarianceEstimator(method="empirical")
+        else:
+            self.covariance_estimator_ = CovarianceEstimator(method=self.method)
 
         self.classes_: np.ndarray | None = None
         self.priors_: np.ndarray | None = None
@@ -81,9 +93,6 @@ class LinearDiscriminantAnalysis(BaseEstimator):
         if len(X) != len(y):
             raise ValueError("X and y must have the same number of samples.")
 
-        if self.covariance_estimator is None:
-            self.covariance_estimator = CovarianceEstimator(method="empirical")
-
         self.classes_, y_indices = np.unique(y, return_inverse=True)
 
         if len(self.classes_) != 2:
@@ -100,16 +109,41 @@ class LinearDiscriminantAnalysis(BaseEstimator):
             self.means_[idx] = np.mean(X_class, axis=0)
             X_centered[class_mask] = X_class - self.means_[idx]
 
-        self.covariance_estimator.fit(X_centered)
-        self.covariance_ = self.covariance_estimator.predict(X_centered)
+        self.covariance_estimator_.fit(X_centered)
+        self.covariance_ = self.covariance_estimator_.predict(X_centered)
 
-        self.precision_ = np.linalg.pinv(self.covariance_)
+        if self.method in LDA_ONLY_METHODS:
+            # TODO: Extend beyond just DEAL
+            cov_evals, U = np.linalg.eigh(self.covariance_)
 
-        w = self.precision_ @ (self.means_[1] - self.means_[0])
-        b = -0.5 * (
-            self.means_[1] @ self.precision_ @ self.means_[1]
-            - self.means_[0] @ self.precision_ @ self.means_[0]
-        ) + np.log(self.priors_[1] / self.priors_[0])
+            Ut = U.T
+            z1_vec = Ut @ self.means_[1]
+            z0_vec = Ut @ self.means_[0]
+            z_vec = z1_vec - z0_vec  # bcs linearity
+
+            if self.method == "deal":
+                adj_evals = deal(cov_evals, z_vec, n_samples - 2)
+            elif self.method == "ref_deal":
+                adj_evals = ref_deal(cov_evals, z_vec, n_samples - 2)
+            else:
+                raise ValueError("Method not implemented.")
+
+            inv_adj_evals = 1.0 / adj_evals
+            w = U @ (inv_adj_evals * z_vec)
+            b = -0.5 * (
+                np.sum(
+                    z1_vec * z1_vec * inv_adj_evals
+                )  # z1_vec.T @ np.diag(inv_adj_evals) @ z1_vec
+                - np.sum(z0_vec * z0_vec * inv_adj_evals)
+            ) + np.log(self.priors_[1] / self.priors_[0])
+        else:
+            self.precision_ = np.linalg.pinv(self.covariance_)
+            mean_diff = self.means_[1] - self.means_[0]
+            w = self.precision_ @ mean_diff
+            b = -0.5 * (
+                self.means_[1] @ self.precision_ @ self.means_[1]
+                - self.means_[0] @ self.precision_ @ self.means_[0]
+            ) + np.log(self.priors_[1] / self.priors_[0])
 
         self.coef_ = np.array([w])
         self.intercept_ = np.array([b])
@@ -134,7 +168,7 @@ class LinearDiscriminantAnalysis(BaseEstimator):
             raise ValueError("This estimator is not fitted yet.")
         return (X @ self.coef_.T + self.intercept_).ravel()
 
-    def predict(self, X: np.ndarray):
+    def predict(self, X: np.ndarray) -> np.ndarray:
         """Predict binary class labels.
 
         Parameters
@@ -150,6 +184,25 @@ class LinearDiscriminantAnalysis(BaseEstimator):
         scores = self.decision_function(X)
         indices = (scores > 0).astype(int)
         return self.classes_[indices]
+
+    def fit_predict(self, X, y) -> np.ndarray:
+        """Fit and predict the predict classes.
+
+        Equivalent to calling [`fit`][shrinkr.lda.LinearDiscriminantAnalysis.fit] followed by [`predict`][shrinkr.lda.LinearDiscriminantAnalysis.predict].
+
+        Parameters
+        ----------
+        X : np.ndarray of shape (n_samples, n_features)
+            Training data.
+        y : np.ndarray of shape (n_samples,)
+            Binary class labels. Exactly two distinct values must be present.
+
+        Returns
+        -------
+        np.ndarray
+            The shrinkage-regularized covariance matrix.
+        """
+        return self.fit(X, y).predict(X)
 
     def predict_proba(self, X: np.ndarray):
         """Estimate class probabilities using the logistic sigmoid.

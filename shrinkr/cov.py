@@ -92,12 +92,12 @@ class CovarianceEstimator(BaseEstimator):
             return self
 
         if self.method == "oas":
-            self.shrunk_cov_ = oas(self.cov_, n, p)
+            self.shrunk_cov_, _ = oas(self.cov_, n, p)
             self.is_fitted_ = True
             return self
 
         if self.method == "ref_oas":
-            self.shrunk_cov_ = ref_oas(self.cov_, n, p)
+            self.shrunk_cov_, _ = ref_oas(self.cov_, n, p)
             self.is_fitted_ = True
             return self
 

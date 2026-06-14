@@ -15,3 +15,7 @@
 
 ::: shrinkr.reference
 
+
+## Monte carlo module
+
+::: shrinkr.monte_carlo

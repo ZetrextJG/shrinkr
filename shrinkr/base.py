@@ -25,12 +25,13 @@ class SimpleBaseEstimator:
         X : array-like
             Input data.
         y : array-like, optional
-            Target values. Ignored.
+            Target values.
 
         Returns
         -------
         self
         """
+        return self
 
     def predict(self, X):
         """Generate predictions (no-op in the base class).
@@ -44,6 +45,7 @@ class SimpleBaseEstimator:
         -------
         None
         """
+        return None
 
 
 BaseEstimator = SimpleBaseEstimator

@@ -1,11 +1,12 @@
 import numpy as np
 import pytest
 
-from shrinkr.functional import loss_fr, loss_prial, mv_opt_cov
+from shrinkr.functional import loss_fm, loss_fr, loss_mv, loss_prial, mv_opt_cov
+from shrinkr.monte_carlo import get_large_sample_cov
 
 
 @pytest.mark.unit
-def test_fr_loss():
+def test_loss_fr():
     np.random.seed(42)
     mat = np.random.rand(16)
     mat = mat.reshape(4, 4)
@@ -18,6 +19,41 @@ def test_fr_loss():
         np.zeros((5, 5)),  # Zero matrix
     )
     assert np.allclose(loss, 1.0)
+
+
+@pytest.mark.unit
+def test_loss_mv():
+    p, n = 40, 80
+    X, sc, rc = get_large_sample_cov(p, n)
+
+    # MV loss between empirical sample cov and true cov
+    loss1 = loss_mv(sc, rc)
+
+    # MV loss between MV Optimal sample cov and true cov
+    opt_sc = mv_opt_cov(sc, rc)
+    loss2 = loss_mv(opt_sc, rc)
+
+    # Optimal is better then random sample cov
+    assert loss2 <= loss1
+
+
+@pytest.mark.unit
+def test_loss_fm():
+    p, n = 40, 80
+    mu = np.random.randn(p)
+    X, sc, rc = get_large_sample_cov(p, n)
+
+    # Fisher Margin loss between empirical sample cov and true cov
+    v1 = np.linalg.solve(sc, mu)
+    loss1 = loss_fm(v1, rc, mu)
+
+    # Fisher Margin loss between MV Optimal sample cov and true cov
+    opt_sc = mv_opt_cov(sc, rc)
+    v2 = np.linalg.solve(opt_sc, mu)
+    loss2 = loss_fm(v2, rc, mu)
+
+    # Optimal is better then random sample cov
+    assert loss2 <= loss1
 
 
 @pytest.mark.unit
@@ -40,4 +76,5 @@ def test_prial():
 
 
 if __name__ == "__main__":
-    test_fr_loss()
+    test_loss_fr()
+    test_prial()

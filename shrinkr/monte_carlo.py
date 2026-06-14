@@ -71,3 +71,32 @@ def get_large_sample_cov(
     sample_cov = np.cov(X, rowvar=False)
 
     return X, sample_cov, real_cov
+
+
+def get_guassian_lda_samples(p: int = 20, n_per_class: int = 100, seed: int = 0):
+    """Generate data for Gaussian LDA with two classes. Balanced dataset.
+
+    Parameters
+    ----------
+    p : int, optional
+        Number of features (dimension). Default is 20.
+    n_per_class : int, optional
+        Number of samples per class. Default is 100.
+    seed : int, optional
+        Seed for ``numpy.random.default_rng``. Default is 0.
+    """
+    _, _, cov = get_large_sample_cov(p, n_per_class, seed)
+
+    rng = np.random.default_rng(seed)
+
+    mu = rng.standard_normal(p)  # The difference in means vector
+    mu: np.ndarray = mu / np.linalg.vector_norm(mu)
+    mu0 = -mu / 2.0
+    mu1 = mu / 2.0
+
+    y = np.concatenate([np.zeros(n_per_class), np.ones(n_per_class)])
+    X0 = rng.multivariate_normal(mean=mu0, cov=cov, size=n_per_class)
+    X1 = rng.multivariate_normal(mean=mu1, cov=cov, size=n_per_class)
+    X = np.concatenate([X0, X1], axis=0)
+
+    return X, y
