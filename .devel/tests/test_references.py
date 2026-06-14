@@ -1,10 +1,10 @@
 import numpy as np
 import pytest
-from shrinkr.reference.deal import ref_deal
 
 from shrinkr.functional import loss_fm, loss_prial
 from shrinkr.monte_carlo import get_large_sample_cov, get_small_sample_cov
 from shrinkr.reference import (
+    ref_deal,
     ref_lw_analytical,
     ref_lw_analytical_unstable,
     ref_lw_linear,
