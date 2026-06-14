@@ -25,10 +25,25 @@
 
 // Utilities functions
 
+/**
+  * The Rectified Linear Unit or The Hinge function.
+  *
+  * @param x Input value
+  * @return ReLU(x)
+  *
+*/
 inline double relu(double x) {
   return x > 0.0 ? x : 0.0;
 }
 
+/**
+  * Clips a value x between min and max 
+  * inclusive on both sides.
+  *
+  * @param x Input value
+  * @return Cliped value
+  *
+*/
 double clip(double x, double min, double max) {
   if (x < min) {
     return min;
@@ -38,7 +53,15 @@ double clip(double x, double min, double max) {
   return x;
 }
 
-// Computes tr(S) for a square matrix S
+/**
+  * Computes tr(S) for a square matrix S.
+  *
+  * @param S Matrix (pxp) (C or F contiguous)
+  * @param p One of the dimensions of the matrix
+  *
+  * @return tr(S)
+  *
+*/
 double trace(const double * const S, size_t p) {
   double acc = 0;
   for (size_t i = 0; i < p; ++i) {
@@ -47,7 +70,17 @@ double trace(const double * const S, size_t p) {
   return acc;
 }
 
-// Computes tr(S @ S.T) for a symmetric matrix S
+/**
+  * Computes tr(S @ S.T) for a square matrix S.
+  *
+  * @param S Matrix (pxp) (C or F contiguous)
+  * @param p One of the dimensions of the matrix
+  *
+  * @note Uses OMP parallel.
+  *
+  * @return tr(S @ S.T)
+  *
+*/
 double traceS2(const double * const S, size_t p) {
   double acc = 0;
   const size_t max_iter = SQUARE(p);
@@ -59,8 +92,17 @@ double traceS2(const double * const S, size_t p) {
   return acc;
 }
 
-
-// Computes tr(A @ A.T), where A is the diagonal matrix of S
+/**
+  * Computes tr(A @ A.T), where A is the diagonal matrix of S.
+  *
+  * Equivalent to the sum over i of $S_{i,i}^2$.
+  *
+  * @param S Matrix (pxp) (C or F contiguous)
+  * @param p One of the dimensions of the matrix
+  *
+  * @return tr(A @ A.T)
+  *
+*/
 double traceDiagS2(const double * const S, size_t p) {
   double acc = 0;
   for (size_t i = 0; i < p ; ++i) {
@@ -69,8 +111,18 @@ double traceDiagS2(const double * const S, size_t p) {
   return acc;
 }
 
-
-// Compute the sum of the || x_k ||_2^4 for x_k being the k-th sample (row)
+/**
+  * Compute the sum of the || x_k ||_2^4 for x_k being the k-th sample (row).
+  *
+  * @param data Matrix (nxp) (C contiguous)
+  * @param n Size of the first dimension (number of samples)
+  * @param p Size of the second dimension (number of features)
+  *
+  * @note Uses OMP parallel.
+  *
+  * @return computed sum
+  *
+*/
 double sumNorm2p4(const double * const data, size_t n, size_t p) {
   double sum_norms_4 = 0.0;
   ptrdiff_t ni;
@@ -88,6 +140,18 @@ double sumNorm2p4(const double * const data, size_t n, size_t p) {
 }
 
 
+/**
+  * Transforms data by scaling it by a constant value (In place).
+  *
+  * @param data A contiguous array of length n
+  * @param n Length of the vector
+  * @param scale Scaling value
+  *
+  * @note Uses OMP parallel.
+  *
+  * @return The computed sum
+  *
+*/
 void scalar_multiply(double * const data, size_t n, double scale) {
   ptrdiff_t i;
   #pragma omp parallel for if(n >= PARALLEL_THRESHOLD)
@@ -96,6 +160,20 @@ void scalar_multiply(double * const data, size_t n, double scale) {
   }
 }
 
+/**
+  * Transforms data by scaling it by a constant value
+  * and copies it to the output array.
+  *
+  * @param data An input contiguous array of length n
+  * @param output An output contiguous array of length n
+  * @param n Length of the vector
+  * @param scale Scaling value
+  *
+  * @note Uses OMP parallel.
+  *
+  * @return The computed sum
+  *
+*/
 void scalar_multiply_copy(const double * const data, double * const output, size_t n, double scale) {
   ptrdiff_t i;
   #pragma omp parallel for if(n >= PARALLEL_THRESHOLD)

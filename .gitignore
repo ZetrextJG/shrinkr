@@ -28,6 +28,7 @@ uv.lock
 
 # MkDocs site (index and news is auto created from README.md)
 site
+docs/c_api
 docs/index.md
 docs/news.md
 

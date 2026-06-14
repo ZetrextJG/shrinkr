@@ -1,0 +1,14 @@
+PROJECT_NAME      = "shrinkr C API"
+
+INPUT             = src
+RECURSIVE         = YES
+
+FILE_PATTERNS     = *.c *.h
+
+EXTRACT_ALL       = YES
+EXTRACT_STATIC    = YES
+
+GENERATE_HTML     = YES
+HTML_OUTPUT       = html
+
+OUTPUT_DIRECTORY  = docs/c_api

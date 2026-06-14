@@ -43,6 +43,8 @@ print(accuracy(y, y_pred)) # 1.0, quite a simple task
 ## Documentation
 
 Documentation site is hosted on [GitHub Pages](https://jgrzywaczewski.com/shrinkr/).
+Build with [MkDocs](https://www.mkdocs.org/) for Python and [Doxygen](https://www.doxygen.nl/) for C
+API Reference and documentation.
 
 ## Structure
 

@@ -49,7 +49,12 @@ plugins:
               - "!^__name__$"
               - "!^__package__$"
 
+hooks:
+  - docs/hooks.py
+
 nav:
   - Home: index.md
   - News: news.md
-  - API Reference: api.md
+  - Python API Reference: api.md
+  - C API Reference:
+    - Reference: c_api/html/index.html

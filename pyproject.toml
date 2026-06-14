@@ -79,3 +79,5 @@ convention = "numpy"
 
 [tool.ruff.lint.per-file-ignores]
 ".devel/**/*.py" = ["D"] # no docstrings for tests needed
+"docs/**/*.py" = ["D"] # no docstrings for docs needed
+
