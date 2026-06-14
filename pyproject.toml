@@ -8,9 +8,8 @@ authors = [
 ]
 requires-python = ">=3.11"
 dependencies = [
-  "Cython",
   "numpy>=2.0.0rc1",
-  "setuptools"
+  "setuptools",
 ]
 
 [build-system]
