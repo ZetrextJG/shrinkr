@@ -26,5 +26,7 @@ uv.lock
 # Bench data
 .devel/bench/data/*.bin
 
-# MkDocs site
+# MkDocs site (index is auto created from README.md)
 site
+docs/index.md
+
