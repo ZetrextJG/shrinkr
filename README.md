@@ -1,4 +1,7 @@
 # Shrinkr - Covariance matrix shrinkage and LDA
+<a href="https://jgrzywaczewski.com/shrinkr">
+    <img src="https://github.com/ZetrextJG/shrinkr/blob/main/docs/shrinkr.svg" class="readme-logo" alt="Shrinkr logo">
+</a>
 
 [![shrinkr for Python](https://github.com/ZetrextJG/shrinkr/actions/workflows/tests.yml/badge.svg)](https://github.com/ZetrextJG/shrinkr/actions/workflows/tests.yml)
 
