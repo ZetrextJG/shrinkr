@@ -60,7 +60,7 @@ def deal(
     eps=1e-8,
     **kwargs,
 ):
-    """DEAL (Deterministic Equivalents for Adaptive LDA) shrinkage.
+    r"""DEAL (Deterministic Equivalents for Adaptive LDA) shrinkage.
 
     Parameters
     ----------
@@ -81,10 +81,28 @@ def deal(
     eps : float, optional
         Epsilon for numerical stability. Default is 1e-8.
 
+    Notes
+    -----
+    The DEAL method utilizes the Random Matrix Theory (RMT) [1] to
+    construct an estimate and optimize an objective
+    defined as an expectation over the data distribution of
+    $|| \hat\Sigma^{-1} \mu - \Sigma^{-1} \mu ||_\Sigma^2$ where $\hat\Sigma$
+    is an optimal linear correction to any non-directional shrinkage,
+    $\Sigma$ is the True Population Covariance, $\mu$ is a constant vector
+    of interest and $|| \cdot ||_\Sigma$ is the Mahalanobis distance
+    based on the matrix $\Sigma$. More details in a future paper.
+
     Returns
     -------
     np.ndarray
         Shrinkage-adjusted eigenvalues.
+
+    References
+    ----------
+    [^1]: Hachem, W., Loubaton, P., Najim, J., & Vallet, P. (2013).
+        On bilinear forms based on the resolvent of large random matrices.
+        In Annales de l'IHP Probabilités et statistiques (Vol. 49, No. 1, pp. 36-63).
+        <https://www.numdam.org/article/AIHPB_2013__49_1_36_0.pdf>
     """
     # Rescale eigenvalues to Trace p
     evals /= np.mean(evals)

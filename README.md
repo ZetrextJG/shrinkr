@@ -17,6 +17,8 @@ pip install git+https://github.com/ZetrextJG/shrinkr
 
 ## Usage example
 
+Also located in the [ready to run script.](https://github.com/ZetrextJG/shrinkr/blob/main/.devel/usage.py).
+
 ```python
 from shrinkr import CovarianceEstimator
 from shrinkr import LinearDiscriminantAnalysis as LDA
@@ -44,13 +46,16 @@ print(accuracy(y, y_pred)) # 1.0, quite a simple task
 
 Documentation site is hosted on [GitHub Pages](https://jgrzywaczewski.com/shrinkr/).
 Build with [MkDocs](https://www.mkdocs.org/) for Python and [Doxygen](https://www.doxygen.nl/) for C
-API Reference and documentation.
+API Reference.
 
 ## Structure
 
-All methods are implemented functionally in the `shrinkr.functional` module,
+Main classes `CovarianceEstimator` and `LinearDiscriminantAnalysis` are importable
+directly from the package root `shrinkr.*`.
+All shrinkage methods are implemented functionally in the `shrinkr.functional` module,
 with reference Python/NumPy implementations in `shrinkr.reference`.
-
+Additionally Monte Carlo implementations used for tests (and more) 
+are located in the `shrinkr.monte_carlo`.
 
 ## Development
 
@@ -62,7 +67,6 @@ uv sync --dev
 The pure C code can be found in `./src` with the Python
 bindings in `./shrinkr/bindings.c` which are exposed via the
 `shrinkr._native` module with type interface in `./shrinkr/_native.pyi`.
-
 
 ### Testing
 
@@ -86,14 +90,15 @@ Styling is handled entirely with *ruff* and enforced on every commit by *pre-com
 Docstrings must be in the [numpy docstring](https://numpy.org/doc/1.19/docs/howto_document.html)
 format. Also enforced by *ruff*.
 
-
 ### Benchmarking
-Benchmarking tools can be found in `./.devel/bench`.
 
+Benchmarking tools can be found in `./.devel/bench`.
+Those utilize [pytest-benchmark](https://github.com/ionelmc/pytest-benchmark) for
+benchmarking together with Python wrappers and [Google's benchmark](https://github.com/google/benchmark)
+for the benchmarking pure C implementation.
 
 ## Benchmark results
 
 Benchmarking results run on a Lenovo ThinkSystem SR665 with 2x AMD EPYC 7413 48 Core Processors and sufficient RAM. 
 The number of cores is restricted to 16. Numpy is installed with uv.
-
 

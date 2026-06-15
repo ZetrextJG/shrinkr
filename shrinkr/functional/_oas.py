@@ -6,7 +6,7 @@ from shrinkr._native import py_oas
 def oas(sample_cov: np.ndarray, n: int, p: int | None = None) -> tuple[np.ndarray, float]:
     """Oracle Approximating Shrinkage (OAS) covariance estimator.
 
-    The formulation is based on [1]_.
+    The formulation is based on [1].
 
     Parameters
     ----------
@@ -26,10 +26,10 @@ def oas(sample_cov: np.ndarray, n: int, p: int | None = None) -> tuple[np.ndarra
 
     References
     ----------
-    .. [1] Chen, Y., Wiesel, A., Eldar, Y. C., & Hero, A. O. (2010).
-       Shrinkage algorithms for MMSE covariance estimation.
-       IEEE Transactions on Signal Processing, 58(10), 5016-5029.
-       <https://arxiv.org/pdf/0907.4698.pdf>
+    [^1]: Chen, Y., Wiesel, A., Eldar, Y. C., & Hero, A. O. (2010).
+        Shrinkage algorithms for MMSE covariance estimation.
+        IEEE Transactions on Signal Processing, 58(10), 5016-5029.
+        <https://arxiv.org/pdf/0907.4698.pdf>
     """
     if len(sample_cov.shape) != 2:
         raise ValueError("Expected a square numpy matrix")

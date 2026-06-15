@@ -9,8 +9,8 @@ def lw_analytical(
 ) -> np.ndarray:
     """Ledoit-Wolf Analytical (nonlinear) shrinkage of eigenvalues.
 
-    Based on Ledoit and Wolf (2018), using the analytic formula that avoids
-    numerical optimization. Handles the high-dimensional setting where p > n.
+    Based on a optimization free formula from Ledoit and Wolf (2020) [1].
+    Handles also the high-dimensional setting where $p>n$.
 
     Parameters
     ----------
@@ -28,6 +28,13 @@ def lw_analytical(
     -------
     np.ndarray
         Analytically shrunk eigenvalues of the same shape as ``eigenvalues``.
+
+    References
+    ----------
+    [^1]: Ledoit, O., & Wolf, M. (2020).
+        Analytical nonlinear shrinkage of large-dimensional covariance matrices.
+        The Annals of Statistics, 48(5), 3043-3065.
+        <http://www.ledoit.net/Analytical_AoS_2020.pdf>
     """
     # Checks
     if len(eigenvalues.shape) != 1:

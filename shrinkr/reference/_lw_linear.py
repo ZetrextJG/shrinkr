@@ -28,7 +28,6 @@ def ref_lw_linear(
     shrinkage : float
         Optimal shrinkage coefficient.
 
-
     See Also
     --------
     [`shrinkr.functional.lw_linear`][]

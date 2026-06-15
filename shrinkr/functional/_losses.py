@@ -2,7 +2,7 @@ import numpy as np
 
 
 def loss_prial(sample_cov: np.ndarray, sigma_hat: np.ndarray, sigma: np.ndarray) -> float:
-    """Percentage Relative Improvement in Average Loss (PRIAL).
+    """Percentage Relative Improvement in Average Loss (PRIAL) [1].
 
     Parameters
     ----------
@@ -17,6 +17,13 @@ def loss_prial(sample_cov: np.ndarray, sigma_hat: np.ndarray, sigma: np.ndarray)
     -------
     float
         Percentage improvement relative to the oracle, in the range [0, 1].
+
+    References
+    ----------
+    [^1]: Ledoit, O., & Péché, S. (2011).
+        Eigenvectors of some large sample covariance matrix ensembles.
+        Probability Theory and Related Fields, 151(1), 233-264.
+        <https://link.springer.com/article/10.1007/s00440-010-0298-3>
     """
     # Checks
     if len(sample_cov.shape) != 2:
@@ -40,6 +47,8 @@ def loss_prial(sample_cov: np.ndarray, sigma_hat: np.ndarray, sigma: np.ndarray)
 def mv_opt_cov(sample_cov: np.ndarray, sigma: np.ndarray) -> np.ndarray:
     """Minimal variance optimal rotation equivariant estimator.
 
+    Oracle estimator derived in [1].
+
     Parameters
     ----------
     sample_cov : np.ndarray
@@ -51,6 +60,13 @@ def mv_opt_cov(sample_cov: np.ndarray, sigma: np.ndarray) -> np.ndarray:
     -------
     np.ndarray
         Oracle optimal rotation equivariant estimator under the MV loss.
+
+    References
+    ----------
+    [^1]: Ledoit, O., & Wolf, M. (2020).
+        Analytical nonlinear shrinkage of large-dimensional covariance matrices.
+        The Annals of Statistics, 48(5), 3043-3065.
+        <http://www.ledoit.net/Analytical_AoS_2020.pdf>
     """
     # Checks
     if len(sample_cov.shape) != 2:
@@ -68,7 +84,16 @@ def mv_opt_cov(sample_cov: np.ndarray, sigma: np.ndarray) -> np.ndarray:
 
 
 def loss_fm(v: np.ndarray, sigma: np.ndarray, mu: np.ndarray) -> float:
-    """Fisher Margin (FM) loss.
+    r"""Fisher Margin (FM) loss.
+
+    Defined as $FM(v) = -(v^T \mu)^2 / (v^T \Sigma v)$,
+    where $\mu$ is the true difference-in-means vector,
+    $\Sigma$ is the true Population Covariance matrix
+    and the $v$ is the considered LDA vector.
+
+    Minimizing the Fisher Margin leads to an optimal
+    Bayesian Classifier on data which admits the LDA
+    data assumptions. The loss is scale invariant.
 
     Parameters
     ----------
@@ -78,6 +103,13 @@ def loss_fm(v: np.ndarray, sigma: np.ndarray, mu: np.ndarray) -> float:
         True covariance matrix.
     mu : np.ndarray
         True difference-in-means vector.
+
+    Notes
+    -----
+    Practically the Fisher Margin is defined
+    without the minus sign. It is there only to turn
+    the maximization task in a minimization one
+    making it a `loss`.
 
     Returns
     -------
@@ -92,12 +124,12 @@ def loss_fm(v: np.ndarray, sigma: np.ndarray, mu: np.ndarray) -> float:
         raise ValueError("sigma has to be a matrix")
 
     A = np.dot(v, mu)
-    B = v.T @ (sigma @ mu)
-    return (A**2) / B
+    B = v.T @ (sigma @ v)
+    return -(A**2) / B
 
 
 def loss_mv(sigma_hat: np.ndarray, sigma: np.ndarray) -> float:
-    """Minimal Variance (MV) loss.
+    """Minimal Variance (MV) loss [1].
 
     Parameters
     ----------
@@ -110,6 +142,13 @@ def loss_mv(sigma_hat: np.ndarray, sigma: np.ndarray) -> float:
     -------
     float
         Value of the MV loss.
+
+    References
+    ----------
+    [^1]: Ledoit, O., & Wolf, M. (2020).
+        Analytical nonlinear shrinkage of large-dimensional covariance matrices.
+        The Annals of Statistics, 48(5), 3043-3065.
+        <http://www.ledoit.net/Analytical_AoS_2020.pdf>
     """
     # Checks
     if len(sigma_hat.shape) != 2:

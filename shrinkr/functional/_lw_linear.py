@@ -4,7 +4,10 @@ from shrinkr._native import py_lw_linear
 
 
 def lw_linear(X: np.ndarray, assume_centered: bool = False) -> tuple[np.ndarray, float]:
-    """Ledoit-Wolf linear shrinkage estimator.
+    r"""Ledoit-Wolf linear shrinkage estimator.
+
+    The value of the shrinkage is constructed
+    based on the Theorem 3.2 and Lemmata 3.2-3.5 from [1].
 
     Parameters
     ----------
@@ -17,10 +20,9 @@ def lw_linear(X: np.ndarray, assume_centered: bool = False) -> tuple[np.ndarray,
     Notes
     -----
     The regularized covariance is:
-
-    ``(1 - shrinkage) * cov + shrinkage * mu * I``
-
-    where ``mu = trace(cov) / n_features``.
+    $(1 - s) * S_c + s * \mu * I$,
+    where $\mu = Tr{(S_c)} / n_\text{features}$, $s$ is the shrinkage value
+    and $S_c$ is the sample covariance matrix.
 
     Returns
     -------
@@ -28,6 +30,13 @@ def lw_linear(X: np.ndarray, assume_centered: bool = False) -> tuple[np.ndarray,
         Shrinkage-regularized covariance matrix of shape (n_features, n_features).
     shrinkage : float
         Optimal shrinkage coefficient.
+
+    References
+    ----------
+    [^1]: Ledoit, O., & Wolf, M. (2004).
+        A well-conditioned estimator for large-dimensional covariance matrices.
+        Journal of multivariate analysis, 88(2), 365-411.
+        <http://www.ledoit.net/ole1a.pdf>
     """
     # for only one feature, the result is the same whatever the shrinkage
     if len(X.shape) == 2 and X.shape[1] == 1:
