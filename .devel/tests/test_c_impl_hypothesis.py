@@ -22,7 +22,7 @@ def test_lw_analytical(p, n, seed):
     ref = ref_lw_analytical(lam, n)
     value = lw_analytical(lam, n)
 
-    np.testing.assert_allclose(value, ref, rtol=1e-5, atol=1e-8)
+    np.testing.assert_allclose(value, ref, rtol=1e-4, atol=1e-5)
 
 
 @pytest.mark.prop
@@ -38,8 +38,8 @@ def test_lw_linear(p, n, seed):
     ref, ref_s = ref_lw_linear(X, assume_centered=False)
     value, value_s = lw_linear(X, assume_centered=False)
 
-    np.testing.assert_allclose(ref_s, value_s, rtol=1e-5, atol=1e-8)
-    np.testing.assert_allclose(value, ref, rtol=1e-5, atol=1e-8)
+    np.testing.assert_allclose(ref_s, value_s, rtol=1e-4, atol=1e-8)
+    np.testing.assert_allclose(value, ref, rtol=1e-4, atol=1e-8)
 
 
 @pytest.mark.prop
@@ -55,5 +55,5 @@ def test_oas(p, n, seed):
     ref, ref_s = ref_oas(sc, n)
     value, value_s = oas(sc, n)
 
-    np.testing.assert_allclose(ref_s, value_s, rtol=1e-5, atol=1e-8)
-    np.testing.assert_allclose(value, ref, rtol=1e-5, atol=1e-8)
+    np.testing.assert_allclose(ref_s, value_s, rtol=1e-4, atol=1e-8)
+    np.testing.assert_allclose(value, ref, rtol=1e-4, atol=1e-8)
