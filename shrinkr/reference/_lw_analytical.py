@@ -1,7 +1,3 @@
-# The adapted code from
-# https://github.com/matzhaugen/analytic_shrinkage
-
-
 import numpy as np
 
 
@@ -11,6 +7,8 @@ def ref_lw_analytical_unstable(lam: np.ndarray, n: int, eps: float = 1e-8):
     Identical in formula to [`ref_lw_analytical`][shrinkr.reference.ref_lw_analytical] but without the numerical
     stability fixes for singularities and large tails. Kept for reference only;
     use [`ref_lw_analytical`][shrinkr.reference.ref_lw_analytical] for proper reference.
+
+    Reference implementation from <https://github.com/matzhaugen/analytic_shrinkage>.
 
     Parameters
     ----------

@@ -1,11 +1,10 @@
-# Code fragment adapted from the Scikit-Learn implementation
-# https://github.com/scikit-learn/scikit-learn/blob/fe2edb3cdbd75ae4e662fda67dcb19277258792b/sklearn/covariance/_shrunk_covariance
-#
 import numpy as np
 
 
 def ref_oas(sample_cov: np.ndarray, n: int, p: int | None = None) -> tuple[np.ndarray, float]:
     """Oracle Approximating Shrinkage (OAS) covariance estimator (reference implementation).
+
+    Reference implementation from [scikit-learn](https://github.com/scikit-learn/scikit-learn/blob/fe2edb3cd/sklearn/covariance/_shrunk_covariance.py).
 
     Parameters
     ----------

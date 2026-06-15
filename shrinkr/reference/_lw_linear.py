@@ -1,7 +1,3 @@
-# Code fragment adapted from the Scikit-Learn implementation
-# https://github.com/scikit-learn/scikit-learn/blob/fe2edb3cd/sklearn/covariance/_shrunk_covariance.py
-#
-
 import numpy as np
 
 
@@ -9,6 +5,8 @@ def ref_lw_linear(
     X: np.ndarray, assume_centered: bool = False, block_size: int = 1000
 ) -> tuple[np.ndarray, float]:
     """Ledoit-Wolf linear shrinkage estimator (reference implementation).
+
+    Reference implementation from [scikit-learn](https://github.com/scikit-learn/scikit-learn/blob/fe2edb3cd/sklearn/covariance/_shrunk_covariance.py).
 
     Parameters
     ----------
