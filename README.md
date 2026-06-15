@@ -62,7 +62,7 @@ are located in the `shrinkr.monte_carlo`.
 
 ## Development
 
-The project is set up with `uv`:
+The project is set up with [uv](https://docs.astral.sh/uv/):
 ```sh
 uv sync --dev
 ```
@@ -73,7 +73,7 @@ bindings in `./shrinkr/bindings.c` which are exposed via the
 
 ### Testing
 
-All tests are in `./.devel/tests` and are handled with *pytest*.
+All tests are in `./.devel/tests` and are handled with [pytest](https://docs.pytest.org/en/stable/).
 
 To run the unit test suite:
 ```sh
@@ -89,7 +89,7 @@ Property-based tests cover a wide range of inputs and are expected to run before
 
 ### Styling
 
-Styling is handled entirely with *ruff* and enforced on every commit by *pre-commit*.
+Styling is handled entirely with [ruff](https://docs.astral.sh/ruff/) and enforced on every commit by [pre-commit](https://pre-commit.com/).
 Docstrings must be in the [numpy docstring](https://numpy.org/doc/1.19/docs/howto_document.html)
 format. Also enforced by *ruff*.
 
@@ -103,7 +103,7 @@ for the benchmarking pure C implementation.
 ## Benchmark results
 
 Benchmarking results run on a Lenovo ThinkSystem SR665 with 2x AMD EPYC 7413 48 Core Processors and sufficient RAM. 
-The number of cores is restricted to 16. Numpy was installed with uv.
+The number of cores is restricted to 16. *Numpy* was installed with *uv*.
 
 ## See also
 
