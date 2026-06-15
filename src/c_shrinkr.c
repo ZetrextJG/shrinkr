@@ -146,6 +146,8 @@ double sumNorm2p4(const double * const data, size_t n, size_t p) {
 /**
   * Transforms data by scaling it by a constant value (In place).
   *
+  * Vector scalar multiply.
+  *
   * @param data A contiguous array of length n
   * @param n Length of the vector
   * @param scale Scaling value
@@ -154,7 +156,7 @@ double sumNorm2p4(const double * const data, size_t n, size_t p) {
   *
   * @ingroup internal
 */
-void scalar_multiply(double * const data, size_t n, double scale) {
+void vecScalarMult(double * const data, size_t n, double scale) {
   ptrdiff_t i;
   #pragma omp parallel for if(n >= PARALLEL_THRESHOLD)
   for (i = 0; i < n ; ++i) {
@@ -166,6 +168,8 @@ void scalar_multiply(double * const data, size_t n, double scale) {
   * Transforms data by scaling it by a constant value
   * and copies it to the output array.
   *
+  * Vector scalar multiply with copy.
+  *
   * @param data An input contiguous array of length n
   * @param output An output contiguous array of length n
   * @param n Length of the vector
@@ -175,7 +179,7 @@ void scalar_multiply(double * const data, size_t n, double scale) {
   *
   * @ingroup internal
 */
-void scalar_multiply_copy(const double * const data, double * const output, size_t n, double scale) {
+void vecScalarMultCopy(const double * const data, double * const output, size_t n, double scale) {
   ptrdiff_t i;
   #pragma omp parallel for if(n >= PARALLEL_THRESHOLD)
   for (i = 0; i < n ; ++i) {
@@ -354,7 +358,7 @@ double C_LWLinear(
   double shrinkage = beta < DOUBLE_EPS ? 1.0 : clip(beta / delta, 0, 1);
 
   // Shrink the cov
-  scalar_multiply_copy(sample_cov, sample_cov_star, p2, (1.0 - shrinkage));
+  vecScalarMultCopy(sample_cov, sample_cov_star, p2, (1.0 - shrinkage));
 
   // Add on the diagonal
   double add_value = shrinkage * mu;
