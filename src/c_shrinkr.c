@@ -30,7 +30,7 @@
   *
   * @param x Input value
   * @return ReLU(x)
-  *
+  * @ingroup internal
 */
 inline double relu(double x) {
   return x > 0.0 ? x : 0.0;
@@ -41,8 +41,11 @@ inline double relu(double x) {
   * inclusive on both sides.
   *
   * @param x Input value
-  * @return Cliped value
+  * @param min Lower bound value
+  * @param max Upper bound value
   *
+  * @return Cliped value
+  * @ingroup internal
 */
 double clip(double x, double min, double max) {
   if (x < min) {
@@ -60,7 +63,7 @@ double clip(double x, double min, double max) {
   * @param p One of the dimensions of the matrix
   *
   * @return tr(S)
-  *
+  * @ingroup internal
 */
 double trace(const double * const S, size_t p) {
   double acc = 0;
@@ -79,7 +82,7 @@ double trace(const double * const S, size_t p) {
   * @note Uses OMP parallel.
   *
   * @return tr(S @ S.T)
-  *
+  * @ingroup internal
 */
 double traceS2(const double * const S, size_t p) {
   double acc = 0;
@@ -101,7 +104,7 @@ double traceS2(const double * const S, size_t p) {
   * @param p One of the dimensions of the matrix
   *
   * @return tr(A @ A.T)
-  *
+  * @ingroup internal
 */
 double traceDiagS2(const double * const S, size_t p) {
   double acc = 0;
@@ -121,7 +124,7 @@ double traceDiagS2(const double * const S, size_t p) {
   * @note Uses OMP parallel.
   *
   * @return computed sum
-  *
+  * @ingroup internal
 */
 double sumNorm2p4(const double * const data, size_t n, size_t p) {
   double sum_norms_4 = 0.0;
@@ -149,8 +152,7 @@ double sumNorm2p4(const double * const data, size_t n, size_t p) {
   *
   * @note Uses OMP parallel.
   *
-  * @return The computed sum
-  *
+  * @ingroup internal
 */
 void scalar_multiply(double * const data, size_t n, double scale) {
   ptrdiff_t i;
@@ -171,8 +173,7 @@ void scalar_multiply(double * const data, size_t n, double scale) {
   *
   * @note Uses OMP parallel.
   *
-  * @return The computed sum
-  *
+  * @ingroup internal
 */
 void scalar_multiply_copy(const double * const data, double * const output, size_t n, double scale) {
   ptrdiff_t i;
@@ -187,10 +188,10 @@ void scalar_multiply_copy(const double * const data, double * const output, size
 
 
 double C_OAS(
-    const double * const sample_cov, // Sample covariance
-    double * const sample_cov_star, // Shrunk covariance
-    size_t n, // Number of samples used
-    size_t p  // Dimensions of the sample_cov
+  const double * const sample_cov, // Sample covariance
+  double * const sample_cov_star, // Shrunk covariance
+  size_t n, // Number of samples used
+  size_t p  // Dimensions of the sample_cov
 ) {
   size_t p2 = SQUARE(p);
 
@@ -221,11 +222,11 @@ double C_OAS(
 
 
 void C_LWAnalytical(
-    const double * const lam, // Input data
-    double * const lam_star, // Output data
-    size_t n, // Number of sample used
-    size_t p, // Dimensions of both x and y
-    double eps // Epsilon value
+  const double * const lam, // Input data
+  double * const lam_star, // Output data
+  size_t n, // Number of sample used
+  size_t p, // Dimensions of both x and y
+  double eps // Epsilon value
 ) {
   const double h = pow(n, - 1.0 / 3.0);
   const double d_p = (double) p;
@@ -242,7 +243,7 @@ void C_LWAnalytical(
 
   double* inv_lam_h = malloc(max_iter * sizeof(double));
   for (size_t i = 0; i < max_iter; ++i) {
-      inv_lam_h[i] = 1.0 / (t_lam[i] * h);
+    inv_lam_h[i] = 1.0 / (t_lam[i] * h);
   }
 
   // Handle main part
@@ -310,11 +311,11 @@ void C_LWAnalytical(
 
     double hf0 = (
       (1.0 / M_PI) * (
-        (3.0 / 10.0 / SQUARE(h)) + 
-          (3.0 / 4.0 / SQRT5 / h) *
-          (1.0 - 1.0 / 5.0 / SQUARE(h)) *
-          log((1.0 + SQRT5 * h) / (1 - SQRT5 * h))
-      )
+      (3.0 / 10.0 / SQUARE(h)) + 
+      (3.0 / 4.0 / SQRT5 / h) *
+      (1.0 - 1.0 / 5.0 / SQUARE(h)) *
+      log((1.0 + SQRT5 * h) / (1 - SQRT5 * h))
+    )
     ) * inv_lams_mean;
 
     double dtilde0 = 1 / (M_PI * (d_p - d_n) / d_n * hf0);
@@ -329,11 +330,11 @@ void C_LWAnalytical(
 
 
 double C_LWLinear(
-    const double * const data, // Data n x p (c contiguous)
-    const double * const sample_cov, // Sample covariance (p x p) (c contiguous)
-    double * const sample_cov_star, // Shrunk covariance buffer
-    size_t n, // Number of samples used
-    size_t p // Number of features
+  const double * const data, // Data n x p (c contiguous)
+  const double * const sample_cov, // Sample covariance (p x p) (c contiguous)
+  double * const sample_cov_star, // Shrunk covariance buffer
+  size_t n, // Number of samples used
+  size_t p // Number of features
 ) {
   size_t p2 = SQUARE(p);
   size_t n2 = SQUARE(n);
@@ -366,13 +367,13 @@ double C_LWLinear(
 
 
 double C_DEALObjective(
-    const double * const base_evals,
-    const double * const surr_evals,
-    const double * const z_vec,
-    double gamma,
-    double * start_value,
-    size_t n,
-    size_t p
+  const double * const base_evals,
+  const double * const surr_evals,
+  const double * const z_vec,
+  double gamma,
+  double * start_value,
+  size_t n,
+  size_t p
 ) {
   double * const inv_diag = malloc(p * sizeof(double));
 
@@ -429,17 +430,17 @@ double C_DEALObjective(
 
 
 double C_DEAL(
-    const double * const base_evals,
-    const double * const surr_evals,
-    const double * const z_vec,
-    double gamma_min,
-    double gamma_max,
-    size_t n,
-    size_t p
+  const double * const base_evals,
+  const double * const surr_evals,
+  const double * const z_vec,
+  double gamma_min,
+  double gamma_max,
+  size_t n,
+  size_t p
 ) {
   double delta = 1.0;
 
-  #define cost(log_gamma) C_DEALObjective(base_evals, surr_evals, z_vec, exp(log_gamma), &delta, n, p)
+#define cost(log_gamma) C_DEALObjective(base_evals, surr_evals, z_vec, exp(log_gamma), &delta, n, p)
 
   // a, b, c and d are the points for the golden section search
   // a -- c -- d -- b

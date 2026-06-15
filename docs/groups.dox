@@ -1,0 +1,9 @@
+/**
+ * @defgroup public_api Public API
+ * @brief Functions available to users of shrinkr
+ */
+
+/**
+ * @defgroup internal Internal API
+ * @brief Internal implementation details
+ */

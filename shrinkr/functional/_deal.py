@@ -28,10 +28,12 @@ def deal_objective(
         Second 1D array of eigenvalues for the objective (Used to compute shrinkage paramters)
     z_vec : np.ndarray
         Vector of interest projected into the eigenvector space.
+    gamma : float
+        The value of gamma to evaluate. During optimization only this value changes.
     n : int
         Effective number of samples used to compute the empirical covariance matrix.
     start_value : float, optional
-        Starting value of gamma for the fixed point iteration method used by for the objective.
+        Starting value of delta for the fixed point iteration method used by for the objective.
 
     See Also
     --------

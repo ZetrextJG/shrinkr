@@ -1,9 +1,10 @@
 PROJECT_NAME      = "shrinkr C API"
 
-INPUT             = src
+INPUT = src docs/c-main.dox docs/groups.dox
 RECURSIVE         = YES
-
 FILE_PATTERNS     = *.c *.h
+
+OUTPUT_DIRECTORY  = docs/c_api
 
 EXTRACT_ALL       = YES
 EXTRACT_STATIC    = YES
@@ -11,4 +12,9 @@ EXTRACT_STATIC    = YES
 GENERATE_HTML     = YES
 HTML_OUTPUT       = html
 
-OUTPUT_DIRECTORY  = docs/c_api
+SHOW_USED_FILES = YES
+HIDE_UNDOC_MEMBERS = YES
+JAVADOC_AUTOBRIEF = YES
+GENERATE_TREEVIEW = YES
+FULL_SIDEBAR = YES
+

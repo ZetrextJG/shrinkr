@@ -1,0 +1,14 @@
+/**
+ * @mainpage shrinkr C API
+ *
+ * @section intro Introduction
+ * Core C library for shrinkr.
+ *
+ * @section public Public API
+ * See @ref public_api for the full reference.
+ *
+ * These functions are stable and used by Python bindings.
+ *
+ * @section internal Internal API
+ * Internal implementation details (not stable).
+ */
