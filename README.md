@@ -1,6 +1,6 @@
 # Shrinkr - Covariance matrix shrinkage and LDA
 <a href="https://jgrzywaczewski.com/shrinkr">
-    <img src="https://github.com/ZetrextJG/shrinkr/blob/main/docs/shrinkr.svg" align="right" height="139" class="readme-logo" alt="Shrinkr logo">
+    <img src="docs/shrinkr.svg" align="right" height="139" class="readme-logo" alt="Shrinkr logo">
 </a>
 
 [![shrinkr for Python](https://github.com/ZetrextJG/shrinkr/actions/workflows/tests.yml/badge.svg)](https://github.com/ZetrextJG/shrinkr/actions/workflows/tests.yml)
@@ -42,7 +42,7 @@ assert total_covariance.shape == (20, 20)
 classifier = LDA(method="deal")
 classifier.fit(X, y)
 y_pred = classifier.predict(X)
-print(accuracy(y, y_pred)) # 1.0, quite a simple task
+print(accuracy(y, y_pred)) # 0.935, quite a simple task
 ```
 
 ## Documentation

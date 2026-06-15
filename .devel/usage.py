@@ -17,4 +17,4 @@ assert total_covariance.shape == (20, 20)
 classifier = LDA(method="deal")
 classifier.fit(X, y)
 y_pred = classifier.predict(X)
-print(accuracy(y, y_pred))  # 1.0, quite a simple task
+print(accuracy(y, y_pred))  # 0.935, quite a simple task
