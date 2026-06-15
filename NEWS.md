@@ -1,4 +1,11 @@
 
+Version 0.1.2
+--------------------------------------------------
+
+* Add official logo
+* Change the way the true covariance is constructed for Monte Carlo
+
+
 Version 0.1.1
 --------------------------------------------------
 
