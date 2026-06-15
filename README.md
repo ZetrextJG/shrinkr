@@ -103,5 +103,12 @@ for the benchmarking pure C implementation.
 ## Benchmark results
 
 Benchmarking results run on a Lenovo ThinkSystem SR665 with 2x AMD EPYC 7413 48 Core Processors and sufficient RAM. 
-The number of cores is restricted to 16. Numpy is installed with uv.
+The number of cores is restricted to 16. Numpy was installed with uv.
+
+## See also
+
+Other amazing projects from which I took motivation:
+- [scikit-learn](https://github.com/scikit-learn/scikit-learn): Machine Learning in Python
+- [deadwood](https://github.com/gagolews/deadwood): Outlier Detection via Pruning Mutual Reachability Minimum Spanning Trees
+- [gips](https://github.com/PrzeChoj/gips): Gaussian model Invariant by Permutation Symmetry
 
