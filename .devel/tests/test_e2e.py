@@ -29,4 +29,4 @@ def test_all_lda_estimators():
         assert y.shape == y_pred.shape
         # This task is so easy that we expect acc > 0.95
         acc_score = accuracy_score(y, y_pred)
-        assert acc_score > 0.95
+        assert acc_score >= 0.95

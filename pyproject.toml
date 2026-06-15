@@ -20,6 +20,7 @@ build-backend = "setuptools.build_meta"
 dev = [
     "build>=1.5.0",
     "hypothesis>=6.155.2",
+    "matplotlib>=3.11.0",
     "pre-commit>=4.6.0",
     "pytest>=9.0.3",
     "pytest-benchmark>=5.2.3",

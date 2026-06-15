@@ -32,12 +32,12 @@ def get_small_sample_cov(n: int = 50, seed: int = 0) -> tuple[np.ndarray, np.nda
 
 
 def get_large_sample_cov(
-    p: int = 20, n: int = 200, seed: int = 0
+    p: int = 20, n: int = 200, seed: int = 0, add_diagonal: float = 1e-1
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Generate Gaussian data with a random positive semi-definite covariance matrix.
 
     The population covariance is constructed as ``A @ A.T`` (normalized to unit
-    trace) plus a small ridge ``1e-4`` for numerical stability.
+    trace) plus a small ridge ``add_linear`` for numerical stability.
 
     Parameters
     ----------
@@ -47,6 +47,8 @@ def get_large_sample_cov(
         Number of samples. Default is 200.
     seed : int, optional
         Seed for ``numpy.random.default_rng``. Default is 0.
+    add_diagonal : float, optional
+        Value added to the diagonal of the true covariance matrix. Default is 1e-1.
 
     Returns
     -------
@@ -64,7 +66,7 @@ def get_large_sample_cov(
     real_cov = A @ A.T
     real_cov /= np.trace(real_cov)
 
-    real_cov += 1e-4
+    real_cov.flat[:: (p + 1)] += add_diagonal
 
     # Empirical cov
     X = rng.multivariate_normal(mean=np.zeros(p), cov=real_cov, size=n)

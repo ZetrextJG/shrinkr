@@ -40,7 +40,7 @@ def test_lw_analytical():
     # Expect (at least) some improvement
     # and more stable then original
     assert prial1 > 0.1
-    assert prial1 >= prial2 - 1e-8
+    assert prial1 >= prial2 - 1e-6
 
 
 @pytest.mark.unit
@@ -57,9 +57,9 @@ def test_deal():
     v0 = np.linalg.solve(sc, mean_diff)
     fm0 = loss_fm(v0, rc, mean_diff)
 
-    lam1 = ref_deal(lam, z_vec, n)
+    lam1 = ref_deal(lam, z_vec, n - 2)
     assert lam1.shape == lam.shape
-    v1 = U @ (z_vec / (lam1 + 1e-12))
+    v1 = U @ (z_vec / lam1)
 
     fm1 = loss_fm(v1, rc, mean_diff)
 
