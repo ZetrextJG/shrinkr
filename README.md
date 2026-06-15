@@ -7,9 +7,9 @@ Methods are implemented in C for performance and exposed through a clean Python 
 
 ## Installation
 
-Currently the package is only on GitHub. Install with:
+Currently the package is only on GitHub. Install with most recent release with:
 ```sh
-pip install git+https://github.com/ZetrextJG/shrinkr
+pip install git+https://github.com/ZetrextJG/shrinkr@latest
 ```
 
 > PyPI release coming soon.
