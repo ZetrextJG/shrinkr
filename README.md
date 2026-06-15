@@ -7,7 +7,7 @@ Methods are implemented in C for performance and exposed through a clean Python 
 
 ## Installation
 
-Currently the package is only on GitHub. Install with most recent release with:
+Currently the package is only on GitHub. Install most recent release with:
 ```sh
 pip install git+https://github.com/ZetrextJG/shrinkr@latest
 ```
@@ -17,7 +17,7 @@ pip install git+https://github.com/ZetrextJG/shrinkr@latest
 
 ## Usage example
 
-Also located in the [ready to run script.](https://github.com/ZetrextJG/shrinkr/blob/main/.devel/usage.py).
+Also located in the [ready to run script](https://github.com/ZetrextJG/shrinkr/blob/main/.devel/usage.py).
 
 ```python
 from shrinkr import CovarianceEstimator
