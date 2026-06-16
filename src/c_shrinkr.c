@@ -476,5 +476,8 @@ double C_DEAL(
 
   double optimal_log_gamma = (a + b) / 2.0;
   double optimal_gamma = exp(optimal_log_gamma);
+
+  #undef cost
+
   return optimal_gamma;
 }
