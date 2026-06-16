@@ -100,15 +100,61 @@ Those utilize [pytest-benchmark](https://github.com/ionelmc/pytest-benchmark) fo
 benchmarking together with Python wrappers and [Google's benchmark](https://github.com/google/benchmark)
 for the benchmarking pure C implementation.
 
-## Benchmark results
-
-Benchmarking results run on a Lenovo ThinkSystem SR665 with 2x AMD EPYC 7413 48 Core Processors and sufficient RAM. 
-The number of cores is restricted to 16. *Numpy* was installed with *uv*.
-
 ## See also
 
 Other amazing projects from which I took motivation:
 - [scikit-learn](https://github.com/scikit-learn/scikit-learn): Machine Learning in Python
 - [deadwood](https://github.com/gagolews/deadwood): Outlier Detection via Pruning Mutual Reachability Minimum Spanning Trees
 - [gips](https://github.com/PrzeChoj/gips): Gaussian model Invariant by Permutation Symmetry
+
+
+## Benchmark results
+
+Benchmarking results run on a Lenovo ThinkSystem SR665 with 2x AMD EPYC 7413 48 Core Processors and sufficient RAM. 
+The number of cores is restricted to 16. *Numpy* was installed with *uv*.
+
+| Estimator          | Method   | Time (ms)   | Rounds   | Diff vs Numpy   | Ratio   |
+|:-------------------|:---------|:------------|:---------|:----------------|:--------|
+| **p=1000, n=2000** |          |             |          |                 |         |
+| LW_Analytical      | shrinkr  | 0.389       | 2427     | - 33.696 ms     |         |
+|                    | Numpy    | 34.085      | 35       | + 33.696 ms     | 87.54x  |
+| LW_Linear          | shrinkr  | 28.751      | 48       | - 280.091 ms    |         |
+|                    | Numpy    | 308.842     | 5        | + 280.091 ms    | 10.74x  |
+| OAS                | shrinkr  | 2.591       | 551      | + 1.892 ms      |         |
+|                    | Numpy    | 0.699       | 634      | - 1.892 ms      | 0.27x   |
+| **p=500, n=1000**  |          |             |          |                 |         |
+| LW_Analytical      | shrinkr  | 0.145       | 7010     | - 3.825 ms      |         |
+|                    | Numpy    | 3.970       | 87       | + 3.825 ms      | 27.41x  |
+| LW_Linear          | shrinkr  | 41.990      | 21       | - 86.015 ms     |         |
+|                    | Numpy    | 128.005     | 9        | + 86.015 ms     | 3.05x   |
+| OAS                | shrinkr  | 0.891       | 1355     | + 0.699 ms      |         |
+|                    | Numpy    | 0.193       | 1608     | - 0.699 ms      | 0.22x   |
+| **p=210, n=300**   |          |             |          |                 |         |
+| LW_Analytical      | shrinkr  | 0.074       | 15994    | - 1.306 ms      |         |
+|                    | Numpy    | 1.380       | 691      | + 1.306 ms      | 18.56x  |
+| LW_Linear          | shrinkr  | 55.001      | 15       | - 9.992 ms      |         |
+|                    | Numpy    | 64.993      | 24       | + 9.992 ms      | 1.18x   |
+| OAS                | shrinkr  | 0.399       | 4602     | + 0.358 ms      |         |
+|                    | Numpy    | 0.041       | 4642     | - 0.358 ms      | 0.10x   |
+| **p=190, n=300**   |          |             |          |                 |         |
+| LW_Analytical      | shrinkr  | 0.053       | 16638    | - 1.134 ms      |         |
+|                    | Numpy    | 1.187       | 783      | + 1.134 ms      | 22.21x  |
+| LW_Linear          | shrinkr  | 46.904      | 17       | + 42.084 ms     |         |
+|                    | Numpy    | 4.820       | 198      | - 42.084 ms     | 0.10x   |
+| OAS                | shrinkr  | 0.342       | 26       | + 0.306 ms      |         |
+|                    | Numpy    | 0.035       | 14436    | - 0.306 ms      | 0.10x   |
+| **p=70, n=60**     |          |             |          |                 |         |
+| LW_Analytical      | shrinkr  | 0.033       | 21160    | - 0.140 ms      |         |
+|                    | Numpy    | 0.173       | 3702     | + 0.140 ms      | 5.27x   |
+| LW_Linear          | shrinkr  | 0.129       | 8571     | + 0.041 ms      |         |
+|                    | Numpy    | 0.088       | 9395     | - 0.041 ms      | 0.68x   |
+| OAS                | shrinkr  | 0.086       | 38       | + 0.072 ms      |         |
+|                    | Numpy    | 0.014       | 39066    | - 0.072 ms      | 0.16x   |
+| **p=50, n=60**     |          |             |          |                 |         |
+| LW_Analytical      | shrinkr  | 0.025       | 28600    | - 0.186 ms      |         |
+|                    | Numpy    | 0.211       | 2659     | + 0.186 ms      | 8.41x   |
+| LW_Linear          | shrinkr  | 0.082       | 11524    | + 0.016 ms      |         |
+|                    | Numpy    | 0.066       | 11240    | - 0.016 ms      | 0.81x   |
+| OAS                | shrinkr  | 0.056       | 20326    | + 0.043 ms      |         |
+|                    | Numpy    | 0.013       | 37270    | - 0.043 ms      | 0.23x   |
 
